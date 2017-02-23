@@ -25,6 +25,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!-- EXTRA IMPORTS -->
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+
 
 
 <dom-module id="my-app">
@@ -106,6 +108,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
+
+<!-- Add Firebase-link app -->
+<firebase-app
+  api-key = "AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY"
+  auth-domain = "wordcloud-app.firebaseapp.com"
+  database-url = "https://wordcloud-app.firebaseio.com"
+  id = "firebaseApp"
+  name = "firebaseApp"
+  ></firebase-app>
+
+<firebase-auth
+  id="firebaseAuth"
+  app-name = "firebaseApp"
+  user="{{user}}"
+  signed-in="{{signedIn}}"
+  ></firebase-auth>
+
   </template>
 
   <script>
@@ -123,6 +142,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       observers: [
         '_routePageChanged(routeData.page)',
       ],
+
+      ready: function() {
+        this.$.firebaseAuth.signInWithEmailAndPassword("demo@demo.demo", "demodemo")
+      },
 
       _routePageChanged: function(page) {
         this.page = page || 'view1';

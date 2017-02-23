@@ -8,21 +8,27 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
+<!-- IMPORTS for custom elements etc -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link ref="import" href="../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-document.html">
 
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
+<!-- Start Element -->
 <dom-module id="my-view1">
   <template>
     <style include="shared-styles">
       :host {
         display: block;
-
         padding: 10px;
       }
+      /* Custom css for tag - TO replace with <tag> custom element! */
       .tag {
         padding: 3px 5px;
         margin: 4px 5px;
@@ -31,16 +37,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: #e8ede8;
         display: inline-block;
       }
+
+      .card.half {
+        width: 30%;
+        display: inline-block;
+      }
     </style>
 
+    <!-- Main comment input -->
     <div class="card">
       <h1>Data Session Comments</h1>
       <paper-textarea label="Add a comment"></paper-textarea>
     </div>
-    <template is='dom-repeat' items='[[tags]]' as='tag'>
-      <span class='tag'>[[tag]]</span>
+
+    <!-- Tag list -->
+    <template id='tagRepeat' is='dom-repeat' items='[[tags]]' as='tag'>
+      <span class='tag'>[[tag.$val]]</span>
   </template>
+  <hr/>
+  <!-- Add Tag input -->
+  <div class="card half">
+    <paper-input
+      id="newTagInput"
+      label="Add new tag"
+      always-float-label
+      value="{{newTag}}"
+      on-keydown="checkForEnter"
+    ></paper-input>
+    <paper-button raised on-tap="addTag">Add</paper-button>
+
+  </div>
+
+<firebase-query
+  id = "tagQuery"
+  app-name = "firebaseApp"
+  path = "/tags"
+  data = "{{tags}}"
+  ></firebase-query>
+
+<firebase-document
+  id = "tagDoc"
+  app-name = "firebaseApp"
+  data = "{{newTag}}"
+  ></firebase-document>
+
+
+
 </template>
+
+<!-- Scripts for element -->
   <script>
     Polymer({
       is: 'my-view1',
@@ -49,12 +94,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tags:{
           type: Array
         },
+        newTag: {
+          type: String,
+        },
+
 
       },
 
+      // Dummy data initialise.
       ready: function() {
-        this.tags = ["data policy","another tag","data loops","quality","another tag again"]
+        // this.tags = ["data policy","another tag","data loops","quality","another tag again"]
         console.log(this.tags);
+      },
+
+      addTag: function() {
+        console.log(this.newTag)
+        path = "/tags";
+        this.$.tagDoc.save(path).then(function() {
+          this.$.tagRepeat.render();
+          this.$.tagDoc.reset();
+          this.newTag = "";
+        }.bind(this));
+      },
+
+      checkForEnter: function(e) {
+        if(e.keyCode === 13) {
+          this.addTag();
+        }
       }
 
     });
