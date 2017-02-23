@@ -10,6 +10,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
 
 <dom-module id="my-view1">
   <template>
@@ -19,19 +23,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+      .tag {
+        padding: 3px 5px;
+        margin: 4px 5px;
+        border: 1px grey solid;
+        border-radius: 4px;
+        background-color: #e8ede8;
+        display: inline-block;
+      }
     </style>
 
     <div class="card">
-      <div class="circle">1</div>
-      <h1>View One</h1>
-      <p>Ut labores minimum atomorum pro. Laudem tibique ut has.</p>
-      <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
+      <h1>Data Session Comments</h1>
+      <paper-textarea label="Add a comment"></paper-textarea>
     </div>
+    <template is='dom-repeat' items='[[tags]]' as='tag'>
+      <span class='tag'>[[tag]]</span>
   </template>
-
+</template>
   <script>
     Polymer({
       is: 'my-view1',
+
+      properties: {
+        tags:{
+          type: Array
+        },
+
+      },
+
+      ready: function() {
+        this.tags = ["data policy","another tag","data loops","quality","another tag again"]
+        console.log(this.tags);
+      }
+
     });
   </script>
 </dom-module>
