@@ -19,6 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
 
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 
 <!-- Start Element -->
 <dom-module id="my-view1">
@@ -47,7 +48,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- Main comment input -->
     <div class="card">
       <h1>Data Session Comments</h1>
-      <paper-textarea label="Add a comment"></paper-textarea>
+      <paper-textarea label="Add a comment" value="{{comment.text}}"></paper-textarea>
+      <paper-toast id="submittedText" text="Thank you for your comment. It has been submitted and the outputs will shortly change to include your views."></paper-toast>
     </div>
 
     <!-- Tag list -->
@@ -70,6 +72,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </div>
 
+<!-- Submit Comment Button -->
+  <div class="card half">
+    <paper-button raised on-tap="addComment">Submit Comment</paper-button>
+<!-- Query to pull list of tags from database -->
 <firebase-query
   id = "tagQuery"
   app-name = "firebaseApp"
@@ -77,13 +83,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   data = "{{tags}}"
   ></firebase-query>
 
+<!-- Document to add new tag to database -->
 <firebase-document
   id = "tagDoc"
   app-name = "firebaseApp"
   data = "{{newTag}}"
   ></firebase-document>
 
-
+<!-- Document to add new comment to database -->
+<firebase-document
+  id = "commentDoc"
+  app-name = "firebaseApp"
+  data = "{{comment}}"
+></firebase-document>
 
 </template>
 
@@ -99,7 +111,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         newTag: {
           type: String,
         },
-
+        comment: {
+          type: Object,
+        },
 
       },
 
@@ -119,9 +133,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }.bind(this));
       },
 
+      addComment: function() {
+        console.log(this.comment.text);
+        path = "/comments";
+        this.$.commentDoc.save(path).then(function() {
+          this.$.commentDoc.reset();
+          this.comment = {};
+          this.$.submittedText.open()
+        }.bind(this))
+      },
+
+
       checkForEnter: function(e) {
         if(e.keyCode === 13) {
           this.addTag();
+
         }
       }
 
