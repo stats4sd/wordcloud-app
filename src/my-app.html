@@ -26,6 +26,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!-- EXTRA IMPORTS -->
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+
+<link rel="import" href="my-view1.html">
+<link rel="import" href="my-view2.html">
+<link rel="import" href="my-view3.html">
 
 
 
@@ -63,6 +72,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: black;
         font-weight: bold;
       }
+      .submit {
+        background-color: rgb(33, 110, 14);
+        color: white;
+        clear: both;
+      }
+      .Blue {
+        background-color: blue!important;
+        color: white;
+      }
+      .Green {
+        background-color: green!important;
+        color: white;
+      }
+      .Red {
+        background-color: red!important;
+        color: white;
+      }
+      .dialog-button {
+        color: black;
+      }
     </style>
 
     <app-location route="{{route}}"></app-location>
@@ -89,11 +118,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Main content -->
       <app-header-layout has-scrolling-region>
 
-        <app-header condenses reveals effects="waterfall">
+        <app-header condenses reveals effects="waterfall" class$="[[group]]">
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>My App</div>
+            <div main-title>Comments App</div>
           </app-toolbar>
+          <template is="dom-if" if="{{group}}">
+            <div class="user-name" on-tap="changeGroup" style="padding: 0 5px 5px 20px">signed in as member of <span style="font-weight:bold">[[group]]</span> group. Tap this text to change groups</div>
+          </template>
         </app-header>
 
         <iron-pages
@@ -101,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <my-view1 name="view1"></my-view1>
+          <my-view1 name="view1" group="{{group}}"></my-view1>
           <my-view2 name="view2"></my-view2>
           <my-view3 name="view3"></my-view3>
           <my-view404 name="view404"></my-view404>
@@ -114,16 +146,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   api-key = "AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY"
   auth-domain = "wordcloud-app.firebaseapp.com"
   database-url = "https://wordcloud-app.firebaseio.com"
-  id = "firebaseApp"
-  name = "firebaseApp"
+  id = "firebaseApp1"
+  name = "firebaseApp1"
   ></firebase-app>
 
 <firebase-auth
-  id="firebaseAuth"
-  app-name = "firebaseApp"
-  user="{{user}}"
+  id="firebaseAuth1"
   signed-in="{{signedIn}}"
+  user="{{user}}"
+  app-name="firebaseApp1"
   ></firebase-auth>
+
+  <!-- Should proabaly put this into a seperate element at some point -->
+  <paper-dialog id="groupDialog" modal>
+    <h1>Wait - Please identify yourself!</h1>
+    <p>Select your group. Your comments in this session will be linked to that group.</p>
+    <iron-selector
+    role='listbox'
+    selected="{{group}}"
+    attr-for-selected="name">
+      <paper-item name="Red">Red</paper-item>
+      <paper-item name="Green">Green</paper-item>
+      <paper-item name="Blue">Blue</paper-item>
+    </iron-selector>
+    <div id='thanksGroup'>
+      <h5>Thanks!</h5>
+      <div class='buttons'>
+        <paper-button raised class$="[[_dialogButton(group)]]" dialog-confirm>Close Dialog</paper-button>
+      </div>
+    </div>
+  </paper-dialog>
 
   </template>
 
@@ -137,14 +189,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           reflectToAttribute: true,
           observer: '_pageChanged',
         },
+        group: {
+          type: String,
+        },
+        signedIn: {
+          type: Boolean,
+        }
       },
 
       observers: [
         '_routePageChanged(routeData.page)',
       ],
 
+      _dialogButton: function(group) {
+        return "dialog-button " + group;
+      },
+
       ready: function() {
-        this.$.firebaseAuth.signInWithEmailAndPassword("demo@demo.demo", "demodemo")
+        this.$.firebaseAuth1.signInWithEmailAndPassword("demo@demo.demo", "demodemo").then(function(){
+          console.log(this.group)
+          console.log(this.signedIn)
+          console.log(this.user)
+          if(!this.group) {
+          //Setup group if not already Setup
+            this.changeGroup();
+          }
+        }.bind(this))
+
       },
 
       _routePageChanged: function(page) {
@@ -164,6 +235,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _showPage404: function() {
         this.page = 'view404';
       },
+
+      changeGroup: function() {
+        this.$.groupDialog.open();
+      }
+
+
     });
   </script>
 </dom-module>

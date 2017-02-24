@@ -22,7 +22,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 
-
 <!-- Start Element -->
 <dom-module id="my-view1">
   <template>
@@ -54,6 +53,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: white;
         clear: both;
       }
+
+      .Blue {
+        background-color: blue!important;
+        color: white;
+      }
+      .Green {
+        background-color: green!important;
+        color: white;
+      }
+      .Red {
+        background-color: red!important;
+        color: white;
+      }
+
       paper-toast {
         bottom: 0;
         left: 0;
@@ -83,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- Submit Comment Button -->
   <paper-toast id="submittedText" text="Thank you for your comment! It's been added to the pot"></paper-toast>
   <br/><br/>
-  <paper-button raised on-tap="addComment" class='submit'>Submit Your Comment</paper-button>
+  <paper-button raised on-tap="addComment" class$="[[group]]">Submit Your Comment</paper-button>
 <!-- end card -->
 </div>
 
@@ -101,32 +114,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       auto-validate=true
       maxlength=25
     ></paper-input>
-    <paper-button raised on-tap="addTag" class='submit'>Add</paper-button>
+    <paper-button raised on-tap="addTag" class$="[[group]]">Add</paper-button>
 
   </div>
 
+  <firebase-app
+    api-key = "AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY"
+    auth-domain = "wordcloud-app.firebaseapp.com"
+    database-url = "https://wordcloud-app.firebaseio.com"
+    id = "firebaseApp2"
+    name = "firebaseApp2"
+    ></firebase-app>
 
+    <firebase-auth
+      id="firebaseAuth2"
+      signed-in="{{signedIn}}"
+      user="{{user}}"
+      app-name="firebaseApp2"
+      ></firebase-auth>
 <!-- Query to pull list of tags from database -->
 <firebase-query
   id = "tagQuery"
-  app-name = "firebaseApp"
   path = "/tags"
   data = "{{tags}}"
+  app-name="firebaseApp2"
   ></firebase-query>
 
 <!-- Document to add new tag to database -->
 <firebase-document
   id = "tagDoc"
-  app-name = "firebaseApp"
   data = "{{newTag}}"
+  app-name="firebaseApp2"
+
   ></firebase-document>
 
 <!-- Document to add new comment to database -->
 <firebase-document
   id = "commentDoc"
-  app-name = "firebaseApp"
+  app-name = "firebaseApp2"
   data = "{{comment}}"
 ></firebase-document>
+
+
 
 </template>
 
@@ -145,6 +174,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         comment: {
           type: Object,
         },
+        group: {
+          type: String,
+        }
+
         // selectedTags: {
         //   type: Array,
         //   notify: true,
@@ -153,12 +186,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       observers: [
-        'selectedTagsChanged(comment.tags.*)'
+        'selectedTagsChanged(comment.tags.*)',
+        'newGroup(group)'
       ],
+
+      newGroup: function() {
+        this.set('comment.group',this.group);
+        console.log(this.comment);
+      },
       // Dummy data initialise.
       ready: function() {
         // this.tags = ["data policy","another tag","data loops","quality","another tag again"]
         console.log(this.tags);
+        this.$.firebaseAuth2.signInWithEmailAndPassword("demo@demo.demo", "demodemo")
       },
 
       addTag: function() {
@@ -173,6 +213,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       addComment: function() {
         console.log(this.comment.text);
+        this.comment.timestamp = Date.now()
+        console.log(this.comment)
         path = "/comments";
         this.$.commentDoc.save(path).then(function() {
           this.$.commentDoc.reset();
@@ -191,6 +233,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       selectedTagsChanged: function() {
         console.log(this.comment);
+      },
+
+      tagDone: function() {
+        console.log(this.tags)
       }
 
     });
