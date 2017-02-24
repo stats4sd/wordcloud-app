@@ -21,7 +21,8 @@
     "polymerfire": "^0.10.3",
     "paper-button": "PolymerElements/paper-button#^1.0.14",
     "paper-ui-elements": "PolymerElements/paper-ui-elements",
-    "paper-toast": "PolymerElements/paper-toast#^1.3.0"
+    "paper-toast": "PolymerElements/paper-toast#^1.3.0",
+    "paper-chip": "WebPaperElements/paper-chip#^1.0.11"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

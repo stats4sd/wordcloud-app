@@ -1,0 +1,14 @@
+[debug] ----------------------------------------------------------------------
+[debug] Command:      /usr/local/Cellar/node/7.4.0/bin/node /usr/local/bin/firebase deploy
+[debug] CLI Version:  3.2.3
+[debug] Platform:     darwin
+[debug] Node Version: v7.4.0
+[debug] Time:         Thu Feb 23 2017 19:06:04 GMT+0000 (GMT)
+[debug] ----------------------------------------------------------------------
+[debug] 
+[debug] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase"]
+[debug] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/wordcloud-app  
+ Thu Feb 23 2017 19:06:04 GMT+0000 (GMT)
+[debug] <<< HTTP RESPONSE 200
+[debug] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/wordcloud-app/tokens  
+ Thu Feb 23 2017 19:06:06 GMT+0000 (GMT)

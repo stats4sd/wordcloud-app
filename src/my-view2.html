@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../bower_components/paper-chip/paper-chip.html">
 
 <dom-module id="my-view2">
   <template>
@@ -20,6 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+
     </style>
 
     <div class="card">
@@ -37,6 +39,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <template is="dom-repeat" items="[[comments]]" as="comment">
       <div class="card">
         <p>[[comment.text]]</p>
+        <template is="dom-repeat" items="[[comment.tags]]" as="tag">
+          <paper-chip elevation=2 label="[[tag]]" class="chip"></paper-chip>
+        </template>
       </div>
     </template>
 
