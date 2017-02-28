@@ -10,6 +10,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../bower_components/paper-chip/paper-chip.html">
 
 <dom-module id="my-view2">
   <template>
@@ -19,19 +21,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+
     </style>
 
     <div class="card">
-      <div class="circle">2</div>
-      <h1>View Two</h1>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.</p>
-      <p>Id nam odio natum malorum, tibique copiosae expetenda mel ea.Detracto suavitate repudiandae no eum. Id adhuc minim soluta nam.Id nam odio natum malorum, tibique copiosae expetenda mel ea.</p>
+      <h1>Outputs</h1>
+      <h5>Number of submitted comments: <div class="circle">[[commentCount]]</div></h5>
+      <p>This page will show a set of outputs from the R-server analysis, including:
+        <ul>
+          <li>A wordcloud based on the comments</li>
+          <li>A frequency table of the top-used tags</li>
+        </ul>
+      </p>
+      <p>The R-server is not yet linked to this app, so instead here is a simple list of the submitted comments, including (eventually) the tags.</p>
     </div>
-  </template>
+    <h1>COMMENTS</h1>
+    <template is="dom-repeat" items="[[comments]]" as="comment">
+      <div class="card">
+        <p>[[comment.text]]</p>
+        <template is="dom-repeat" items="[[comment.tags]]" as="tag">
+          <paper-chip elevation=2 label="[[tag]]" class="chip"></paper-chip>
+        </template>
+      </div>
+    </template>
 
+  <firebase-query
+    id = "commentQuery"
+    app-name = "firebaseApp"
+    path = "/comments"
+    data = "{{comments}}"
+    ></firebase-query>
+
+</template>
   <script>
     Polymer({
       is: 'my-view2',
+
+      properties: {
+        comments: {
+          type: Array,
+          notify: true,
+          // observer: "commentsChanged"
+        },
+        commentCount: {
+          type: Number,
+        },
+      },
+
+      observers: [
+        'commentsChanged(comments.*)'
+      ],
+
+      commentsChanged: function(newData, oldData) {
+        console.log("comment Data Changed")
+        comments = this.comments
+        console.log(comments)
+        console.log
+        this.commentCount = this.comments.length;
+      },
+
     });
   </script>
 </dom-module>
