@@ -79,20 +79,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: white;
         clear: both;
       }
-      .Blue {
-        background-color: blue!important;
+      .Yellow {
+        background-color: #ffb900!important;
+        color: white;
+      }
+      .Orange {
+        background-color: #e16000!important;
         color: white;
       }
       .Green {
-        background-color: green!important;
+        background-color: #6a882f!important;
         color: white;
       }
       .Red {
-        background-color: red!important;
+        background-color: #b83f3b!important;
         color: white;
       }
       .dialog-button {
         color: black;
+      }
+      .subheading {
+        padding: 10px;
+        font-size: 0.8em;
       }
     </style>
 
@@ -110,7 +118,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <h5>Data Session</h5>
           <a name="view1" href="/view1">Add Comment</a>
-          <a name="view2" href="/view2">Results</a>
+          <!-- <a name="view2" href="/view2">Results</a> -->
           <hr/>
           <h5>Other Sessions</h5>
           <a name="view3" href="/view3">Placeholder</a>
@@ -123,11 +131,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header reveals effects="waterfall" class$="[[group]]">
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>Comments App</div>
+            <div main-title>Comments Demo</div>
           </app-toolbar>
           <template is="dom-if" if="{{group}}">
-            <div class="user-name" on-tap="changeGroup" style="padding: 10px 5px 5px 20px">signed in as member of <span style="font-weight:bold">[[group]]</span> group. Tap this text to change groups</div>
-          </template>
+            <div class="user-name subheading" on-tap="changeGroup">signed in as member of <span style="font-weight:bold">[[group]]</span> group. Tap here to change groups</div>
+        </template>
         </app-header>
 
         <iron-pages
@@ -136,7 +144,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <my-view1 name="view1" group="{{group}}"></my-view1>
-          <my-view2 name="view2"></my-view2>
+          <!-- <my-view2 name="view2"></my-view2> -->
           <my-view3 name="view3"></my-view3>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
@@ -145,9 +153,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!-- Add Firebase-link app -->
 <firebase-app
-  api-key = "AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY"
-  auth-domain = "wordcloud-app.firebaseapp.com"
-  database-url = "https://wordcloud-app.firebaseio.com"
+  api-key = "AIzaSyD2GWS6ErnNyqQg4taCSftWPu78FBSrGeo"
+  auth-domain = "wordcloud-demo.firebaseapp.com"
+  database-url = "https://wordcloud-demo.firebaseio.com"
   id = "firebaseApp1"
   name = "firebaseApp1"
   ></firebase-app>
@@ -166,10 +174,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     value="{{group}}"
     label="Select Group"
     >
-    <paper-listbox class="dropdown-content" selected="1">
-      <paper-item>Green</paper-item>
+    <paper-listbox class="dropdown-content">
       <paper-item>Red</paper-item>
-      <paper-item>Blue</paper-item>
+      <paper-item>Green</paper-item>
+      <paper-item>Yellow</paper-item>
+      <paper-item>Orange</paper-item>
+
     </paper-listbox>
 
     </paper-dropdown-menu>
@@ -195,6 +205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         group: {
           type: String,
+          value: null
         },
         signedIn: {
           type: Boolean,
