@@ -37,8 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="my-view1.html">
 <link rel="import" href="my-view2.html">
 <link rel="import" href="my-view3.html">
-
-
+<link rel="import" href="my-questions.html">
 
 <dom-module id="my-app">
   <template>
@@ -48,20 +47,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --app-secondary-color: black;
         display: block;
       }
-
+      
       app-header {
         color: #fff;
         background-color: var(--app-primary-color);
       }
-
+      
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
       }
-
+      
       .drawer-list {
         margin: 0 20px;
       }
-
+      
       .drawer-list a {
         display: block;
         padding: 0 16px;
@@ -69,39 +68,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: var(--app-secondary-color);
         line-height: 40px;
       }
-
+      
       .drawer-list a.iron-selected {
         color: black;
         font-weight: bold;
       }
+      
       .submit {
         background-color: rgb(33, 110, 14);
         color: white;
         clear: both;
       }
+      
       .Blue {
         background-color: blue!important;
         color: white;
       }
+      
       .Green {
         background-color: green!important;
         color: white;
       }
+      
       .Red {
         background-color: red!important;
         color: white;
       }
+      
       .dialog-button {
         color: black;
       }
     </style>
 
     <app-location route="{{route}}"></app-location>
-    <app-route
-        route="{{route}}"
-        pattern="/:page"
-        data="{{routeData}}"
-        tail="{{subroute}}"></app-route>
+    <app-route  route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}">
+    </app-route>
 
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
@@ -109,6 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <h5>Data Session</h5>
+          <a name="questions" href="/questions">Questions</a>
           <a name="view1" href="/view1">Add Comment</a>
           <a name="view2" href="/view2">Results</a>
           <hr/>
@@ -125,61 +127,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Comments App</div>
           </app-toolbar>
-          <template is="dom-if" if="{{group}}">
+          <!--<template is="dom-if" if="{{group}}">
             <div class="user-name" on-tap="changeGroup" style="padding: 10px 5px 5px 20px">signed in as member of <span style="font-weight:bold">[[group]]</span> group. Tap this text to change groups</div>
-          </template>
+          </template>-->
         </app-header>
 
-        <iron-pages
-            selected="[[page]]"
-            attr-for-selected="name"
-            fallback-selection="view404"
-            role="main">
+        <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
           <my-view1 name="view1" group="{{group}}"></my-view1>
           <my-view2 name="view2"></my-view2>
           <my-view3 name="view3"></my-view3>
+          <my-questions name="questions"></my-questions>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
 
-<!-- Add Firebase-link app -->
-<firebase-app
-  api-key = "AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY"
-  auth-domain = "wordcloud-app.firebaseapp.com"
-  database-url = "https://wordcloud-app.firebaseio.com"
-  id = "firebaseApp1"
-  name = "firebaseApp1"
-  ></firebase-app>
+    <!-- Add Firebase-link app -->
+    <firebase-app api-key="AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY" auth-domain="wordcloud-app.firebaseapp.com" database-url="https://wordcloud-app.firebaseio.com"
+      id="firebaseApp1" name="firebaseApp1"></firebase-app>
 
-<firebase-auth
-  id="firebaseAuth1"
-  signed-in="{{signedIn}}"
-  user="{{user}}"
-  app-name="firebaseApp1"
-  ></firebase-auth>
+      <firebase-auth id="firebaseAuth1" signed-in="{{signedIn}}" user="{{user}}" app-name="firebaseApp1"></firebase-auth>
 
-  <!-- Should proabaly put this into a seperate element at some point -->
-  <paper-dialog id="groupDialog" modal>
-    <h1>Select Group</h1>
-    <paper-dropdown-menu
-    value="{{group}}"
-    label="Select Group"
-    >
-    <paper-listbox class="dropdown-content" selected="1">
-      <paper-item>Green</paper-item>
-      <paper-item>Red</paper-item>
-      <paper-item>Blue</paper-item>
-    </paper-listbox>
+      <!-- Should proabaly put this into a seperate element at some point -->
+      <paper-dialog id="groupDialog" modal>
+        <h1>Select Group</h1>
+        <paper-dropdown-menu value="{{group}}" label="Select Group">
+          <paper-listbox class="dropdown-content" selected="1">
+            <paper-item>Green</paper-item>
+            <paper-item>Red</paper-item>
+            <paper-item>Blue</paper-item>
+          </paper-listbox>
 
-    </paper-dropdown-menu>
-    <div id='thanksGroup'>
-      <h5>Thanks!</h5>
-      <div class='buttons'>
-        <paper-button raised class$="[[_dialogButton(group)]]" dialog-confirm>Close Dialog</paper-button>
-      </div>
-    </div>
-  </paper-dialog>
+        </paper-dropdown-menu>
+        <div id='thanksGroup'>
+          <h5>Thanks!</h5>
+          <div class='buttons'>
+            <paper-button raised class$="[[_dialogButton(group)]]" dialog-confirm>Close Dialog</paper-button>
+          </div>
+        </div>
+      </paper-dialog>
 
   </template>
 
@@ -203,26 +189,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       observers: [
         '_routePageChanged(routeData.page)',
+        '_routeDataChanged(routeData.*)',
+        '_subrouteDataChanged(subrouteData)'
       ],
 
-      _dialogButton: function(group) {
+      _dialogButton: function (group) {
         return "dialog-button " + group;
       },
 
-      ready: function() {
-        this.$.firebaseAuth1.signInWithEmailAndPassword("demo@demo.demo", "demodemo").then(function(){
-          console.log(this.group)
-          console.log(this.signedIn)
-          console.log(this.user)
-          if(!this.group) {
-          //Setup group if not already Setup
+      ready: function () {
+        this.$.firebaseAuth1.signInWithEmailAndPassword("demo@demo.demo", "demodemo").then(function () {
+          if (!this.group) {
+            //Setup group if not already Setup
             this.changeGroup();
           }
         }.bind(this))
 
       },
 
-      _routePageChanged: function(page) {
+      _routePageChanged: function (page) {
         this.page = page || 'view1';
 
         if (!this.$.drawer.persistent) {
@@ -230,17 +215,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      _pageChanged: function(page) {
+      _pageChanged: function (page) {
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);
       },
 
-      _showPage404: function() {
+      _routeDataChanged: function (routeData) {
+
+      },
+      _subrouteDataChanged: function (subrouteData) {
+        console.log('subroute data', subrouteData)
+      },
+
+      _showPage404: function () {
         this.page = 'view404';
       },
 
-      changeGroup: function() {
+      changeGroup: function () {
         this.$.groupDialog.open();
       }
 

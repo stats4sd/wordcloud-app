@@ -22,6 +22,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+
 <!-- Start Element -->
 <dom-module id="my-view1">
   <template>
@@ -81,10 +84,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 100%;
       }*/
     </style>
+    <!--
+      access main url route, match pattern /view1/ and set what follows as 'questionID'
+      store to this.questionData variable
+      -->
+    <app-location route="{{route}}"></app-location>
+    <app-route 
+    route="{{route}}" 
+    pattern="/view1/:questionID" 
+    data="{{questionData}}">
+    </app-route>
 
     <!-- Main comment input -->
     <div class="card" id="commentCard">
-      <h1>Data Session Comments</h1>
+      <h1>[[questionData.questionID]]</h1>
       <div id="commentEdit" hidden$="[[commentSaved]]">
         <h5>1. Add a personal comment into the pot:</h5>
         <paper-textarea label="Add a comment" always-float-label value="{{comment.text}}"></paper-textarea>
@@ -172,36 +185,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         commentSaved: {
           type: Boolean,
           value: false
-        }
-
-        // selectedTags: {
-        //   type: Array,
-        //   notify: true,
-        // }
-
+        },
       },
 
       observers: [
         'selectedTagsChanged(comment.tags.*)',
-        'newGroup(group)'
+        'newGroup(group)',
       ],
 
       newGroup: function () {
         this.set('comment.group', this.group);
-        console.log('new group', this.group)
       },
       // Dummy data initialise.
       ready: function () {
-        console.log('calling ready function')
         // this.tags = ["data policy","another tag","data loops","quality","another tag again"]
         this.$.firebaseAuth2.signInWithEmailAndPassword("demo@demo.demo", "demodemo")
-        this.$.submittedTag.fitInto = this.$.commentCard;
-        this.$.submittedText.fitInto = this;
-
-
+        // this.$.submittedTag.fitInto = this.$.commentCard;
+        // this.$.submittedText.fitInto = this;
 
       },
+      attached:function(){
+        console.log('view 1 attached')
+        console.log('route',this.route)
+        console.log('question data',this.questionData)
 
+      },
       addTag: function () {
         console.log('tag changed', this.newTag)
         if (this.newTag && this.newTag != "") {
@@ -222,9 +230,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if(!this.pushId){this.pushId=generatePushID()}
           console.log('push id', this.pushId)
           path = "/comments";
-          this.$.commentDoc.save(path,this.pushId).then(function (res) {
-            console.log('res', res)
-            console.log('comment saved')
+          this.$.commentDoc.save(path,this.pushId).then(function (es) {
             this.commentSaved = true;
             // this.$.commentDoc.reset();
             // this.comment = {};
@@ -237,7 +243,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.commentSaved = false;
       },
       _commentChanged: function (newComment) {
-        console.log('comment changed', newComment)
+        //console.log('comment changed', newComment)
+        console.log('comment updated')
       },
 
       checkForEnter: function (e) {
@@ -248,7 +255,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       selectedTagsChanged: function (newTags) {
-        console.log('selected tags changed', newTags);
+       // console.log('selected tags changed', newTags);
       },
 
       tagDone: function () {
