@@ -31,6 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding: 10px;
       }
       /* Custom css for tag - TO replace with <tag> custom element! */
+      
       .tag {
         padding: 3px 5px;
         margin: 4px 5px;
@@ -39,34 +40,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: #e8ede8;
         display: inline-block;
       }
+      
       .selectedTag {
         background-color: rgb(52, 152, 48);
         border: 1px green solid;
       }
-
+      
       .card.half {
         width: 30%;
         display: inline-block;
       }
+      
       .submit {
         background-color: rgb(33, 110, 14);
         color: white;
         clear: both;
       }
-
+      
       .Blue {
         background-color: blue!important;
         color: white;
       }
+      
       .Green {
         background-color: green!important;
         color: white;
       }
+      
       .Red {
         background-color: red!important;
         color: white;
       }
-
+      #commentCard{
+        margin-top:48px
+      }
       /*paper-toast {
         bottom: 0;
         left: 0;
@@ -77,103 +84,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- Main comment input -->
     <div class="card" id="commentCard">
       <h1>Data Session Comments</h1>
-      <h5>1. Add a personal comment into the pot:</h5>
-      <paper-textarea label="Add a comment" always-float-label value="{{comment.text}}"></paper-textarea>
+      <div id="commentEdit" hidden$="[[commentSaved]]">
+        <h5>1. Add a personal comment into the pot:</h5>
+        <paper-textarea label="Add a comment" always-float-label value="{{comment.text}}"></paper-textarea>
+        <h5>2. Tag your comment:</h5>
+        <!-- Tag list -->
+        <iron-selector multi=true selected-values="{{comment.tags}}" selected-class="selectedTag" attr-for-selected="name">
+          <template id='tagRepeat' is='dom-repeat' items='[[tags]]' as='tag'>
+            <div class='tag' name="[[tag.$val]]">[[tag.$val]]</div>
+          </template>
+        </iron-selector>
+        <!-- Submit Comment Button -->
+        <br/><br/>
+        <paper-button raised on-tap="addComment" class$="[[group]]">
+          Submit Your Comment
+        </paper-button>
+        <paper-toast id="submittedText" text="Comment submitted"></paper-toast>
+      </div>
+      <div class="savedComment" hidden$="[[!commentSaved]]">
+        <p class='comment'>[[comment.text]]</p>
+        <span>Tags: </span>
+        <template id='tagRepeat' is='dom-repeat' items='[[comment.tags]]' as='tag'>
+          <div class='tag'>[[tag]]</div>
+        </template>
+        <br><br>
+        <paper-button raised on-tap="editComment" class$="[[group]]">
+          Edit
+        </paper-button>
+      </div>
+      <!-- end card -->
+    </div>
 
-      <h5>2. Tag your comment:</h5>
-    <!-- Tag list -->
-    <iron-selector
-      multi=true
-      selected-values="{{comment.tags}}"
-      selected-class="selectedTag"
-      attr-for-selected="name">
 
-    <template id='tagRepeat' is='dom-repeat' items='[[tags]]' as='tag'>
-      <div class='tag' name="[[tag.$val]]">[[tag.$val]]</div>
+
+    <div class="card">
+      <h2>Add A New Tag?</h2>
+      <p>If you feel your comment has an important word or key phrase that isn't in the tags, please add it here. It will become
+        available immediately for you (and everyone else!) to use.</p>
+      <!-- Add Tag input -->
+
+      <paper-input id="newTagInput" label="Add new tag" always-float-label value="{{newTag}}" on-keydown="checkForEnter" auto-validate=true
+        maxlength=25></paper-input>
+        <paper-button raised on-tap="addTag" class$="[[group]]">
+          Add
+          <paper-toast id="submittedTag" text="Tag Added"></paper-toast>
+        </paper-button>
+
+    </div>
+
+
+    <firebase-app api-key="AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY" auth-domain="wordcloud-app.firebaseapp.com" database-url="https://wordcloud-app.firebaseio.com"
+      id="firebaseApp2" name="firebaseApp2"></firebase-app>
+
+      <firebase-auth id="firebaseAuth2" signed-in="{{signedIn}}" user="{{user}}" app-name="firebaseApp2"></firebase-auth>
+      <!-- Query to pull list of tags from database -->
+      <firebase-query id="tagQuery" path="/tags" data="{{tags}}" app-name="firebaseApp2"></firebase-query>
+
+      <!-- Document to add new tag to database -->
+      <firebase-document id="tagDoc" data="{{newTag}}" app-name="firebaseApp2"></firebase-document>
+
+      <!-- Document to add new comment to database -->
+      <firebase-document id="commentDoc" app-name="firebaseApp2" data="{{comment}}"></firebase-document>
+
+
   </template>
-</iron-selector>
 
-  <!-- Submit Comment Button -->
-
-  <br/><br/>
-  <paper-button raised on-tap="addComment" class$="[[group]]">
-    Submit Your Comment
-  </paper-button>
-  <paper-toast id="submittedText" text="Comment submitted"></paper-toast>
-
-
-<!-- end card -->
-</div>
-
-<div class="card">
-<h2>Add A New Tag?</h2>
-<p>If you feel your comment has an important word or key phrase that isn't in the tags, please add it here. It will become available immediately for you (and everyone else!) to use.</p>
-  <!-- Add Tag input -->
-
-    <paper-input
-      id="newTagInput"
-      label="Add new tag"
-      always-float-label
-      value="{{newTag}}"
-      on-keydown="checkForEnter"
-      auto-validate=true
-      maxlength=25
-    ></paper-input>
-    <paper-button raised on-tap="addTag" class$="[[group]]">
-      Add
-      <paper-toast id="submittedTag" text="Tag Added"></paper-toast>
-    </paper-button>
-
-  </div>
-
-  <firebase-app
-    api-key = "AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY"
-    auth-domain = "wordcloud-app.firebaseapp.com"
-    database-url = "https://wordcloud-app.firebaseio.com"
-    id = "firebaseApp2"
-    name = "firebaseApp2"
-    ></firebase-app>
-
-    <firebase-auth
-      id="firebaseAuth2"
-      signed-in="{{signedIn}}"
-      user="{{user}}"
-      app-name="firebaseApp2"
-      ></firebase-auth>
-<!-- Query to pull list of tags from database -->
-<firebase-query
-  id = "tagQuery"
-  path = "/tags"
-  data = "{{tags}}"
-  app-name="firebaseApp2"
-  ></firebase-query>
-
-<!-- Document to add new tag to database -->
-<firebase-document
-  id = "tagDoc"
-  data = "{{newTag}}"
-  app-name="firebaseApp2"
-
-  ></firebase-document>
-
-<!-- Document to add new comment to database -->
-<firebase-document
-  id = "commentDoc"
-  app-name = "firebaseApp2"
-  data = "{{comment}}"
-></firebase-document>
-
-
-
-</template>
-
-<!-- Scripts for element -->
+  <!-- Scripts for element -->
   <script>
     Polymer({
       is: 'my-view1',
 
       properties: {
-        tags:{
+        tags: {
           type: Array
         },
         newTag: {
@@ -181,9 +163,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         comment: {
           type: Object,
+          observer: '_commentChanged'
         },
         group: {
           type: String,
+        },
+        commentSaved: {
+          type: Boolean,
+          value: false
         }
 
         // selectedTags: {
@@ -198,26 +185,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'newGroup(group)'
       ],
 
-      newGroup: function() {
-        this.set('comment.group',this.group);
-        console.log(this.comment);
+      newGroup: function () {
+        this.set('comment.group', this.group);
+        console.log('new group', this.group)
       },
       // Dummy data initialise.
-      ready: function() {
+      ready: function () {
+        console.log('calling ready function')
         // this.tags = ["data policy","another tag","data loops","quality","another tag again"]
-        console.log(this.tags);
         this.$.firebaseAuth2.signInWithEmailAndPassword("demo@demo.demo", "demodemo")
         this.$.submittedTag.fitInto = this.$.commentCard;
         this.$.submittedText.fitInto = this;
 
 
+
       },
 
-      addTag: function() {
-        console.log(this.newTag)
-        if(this.newTag && this.newTag!="") {
+      addTag: function () {
+        console.log('tag changed', this.newTag)
+        if (this.newTag && this.newTag != "") {
           path = "/tags";
-          this.$.tagDoc.save(path, this.newTag).then(function() {
+          this.$.tagDoc.save(path, this.newTag).then(function () {
             this.$.tagRepeat.render();
             this.$.tagDoc.reset();
             this.newTag = "";
@@ -226,35 +214,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      addComment: function() {
-        console.log(this.comment.text);
-        if(this.comment.text && this.comment.text!=""){
+      addComment: function () {
+        if (this.comment.text && this.comment.text != "") {
           this.comment.timestamp = Date.now()
-          console.log(this.comment)
           path = "/comments";
-          this.$.commentDoc.save(path).then(function() {
-            this.$.commentDoc.reset();
-            this.comment = {};
-            this.$.submittedText.open();
+          //this.push('myComments', this.comment)
+          this.$.commentDoc.save(path).then(function () {
+            console.log('comment saved')
+            this.commentSaved = true;
+            // this.$.commentDoc.reset();
+            // this.comment = {};
+            // this.$.submittedText.open();
           }.bind(this))
         }
       },
 
+      editComment: function () {
+        this.commentSaved = false;
+      },
+      _commentChanged: function (newComment) {
+        console.log('comment changed', newComment)
+      },
 
-      checkForEnter: function(e) {
-        if(e.keyCode === 13) {
+      checkForEnter: function (e) {
+        if (e.keyCode === 13) {
           this.addTag();
 
         }
       },
 
-      selectedTagsChanged: function() {
-        console.log(this.comment);
+      selectedTagsChanged: function (newTags) {
+        console.log('selected tags changed', newTags);
       },
 
-      tagDone: function() {
+      tagDone: function () {
         console.log(this.tags)
-      }
+      },
+
+
 
     });
   </script>
