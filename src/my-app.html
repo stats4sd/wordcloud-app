@@ -34,7 +34,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 
 
-<link rel="import" href="my-view1.html">
+<!--<link rel="import" href="my-view1.html">-->
 <link rel="import" href="my-view2.html">
 <link rel="import" href="my-view3.html">
 <link rel="import" href="my-questions.html">
@@ -111,7 +111,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <h5>Data Session</h5>
           <a name="questions" href="/questions">Questions</a>
-          <a name="view1" href="/view1">Add Comment</a>
+          <!--<a name="view1" href="/view1">Add Comment</a>-->
           <a name="view2" href="/view2">Results</a>
           <hr/>
           <h5>Other Sessions</h5>
@@ -133,7 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-header>
 
         <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
-          <my-view1 name="view1" group="{{group}}"></my-view1>
+          <!--<my-view1 name="view1" group="{{group}}"></my-view1>-->
           <my-view2 name="view2"></my-view2>
           <my-view3 name="view3"></my-view3>
           <my-questions name="questions"></my-questions>
@@ -142,9 +142,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </app-header-layout>
     </app-drawer-layout>
 
-    <!-- Add Firebase-link app -->
-    <firebase-app api-key="AIzaSyB5vfLVAmDneX7hDZ-N6xGBi1mxB-So0JY" auth-domain="wordcloud-app.firebaseapp.com" database-url="https://wordcloud-app.firebaseio.com"
-      id="firebaseApp1" name="firebaseApp1"></firebase-app>
+
 
       <firebase-auth id="firebaseAuth1" signed-in="{{signedIn}}" user="{{user}}" app-name="firebaseApp1"></firebase-auth>
 
@@ -198,7 +196,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       ready: function () {
-        this.$.firebaseAuth1.signInWithEmailAndPassword("demo@demo.demo", "demodemo").then(function () {
+        console.log('signing in')
+        this.$.firebaseAuth1.signInWithEmailAndPassword("demo@demo.demo", "demodemo").then(function (res) {
+          console.log(res)
           if (!this.group) {
             //Setup group if not already Setup
             this.changeGroup();
