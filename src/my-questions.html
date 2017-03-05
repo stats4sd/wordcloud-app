@@ -47,13 +47,11 @@
       }
     </style>
     <firebase-query id="questionsQuery" path="/questions" data="{{questions}}" app-name="firebaseApp1"></firebase-query>
-    
     <firebase-document 
     id="newQuestion" 
     data="{{newQuestion}}" 
     app-name="firebaseApp1">
     </firebase-document>
-    
     <firebase-document 
     id="removeQuestion" 
     path="/questions/{{selectedQuestion.$key}}" 
@@ -67,14 +65,14 @@
         <paper-card on-tap="goToQuestion" id="[[question.$key]]">
           <paper-icon-item>
             <iron-icon icon="communication:live-help" item-icon></iron-icon>
-            [[question.text]]
+            [[question.questionText]]
             <iron-icon class="align-right" icon="delete" item-icon on-tap="_delete"></iron-icon>
           </paper-icon-item>
         </paper-card>
       </template>
     </div>
     <!--add new question-->
-    <paper-input id="newQuestionInput" hidden$="[[!isAdmin]]" label="Add new question" always-float-label value="{{newQuestion.text}}"
+    <paper-input id="newQuestionInput" hidden$="[[!isAdmin]]" label="Add new question" always-float-label value="{{newQuestion.questionText}}"
       on-keydown="checkForEnter">
     </paper-input>
     <paper-button raised on-tap="addQuestion" class$="[[group]]">
@@ -84,10 +82,6 @@
 
     <h1>Add Comments</h1>
     <comment-element id="commentEditor" question="{{selectedQuestion}}"></comment-element>
-
-    <h1>Tags</h1>
-
-    <h1>results</h1>
 
   </template>
 
@@ -119,7 +113,6 @@
       },
 
       _questionsChanged: function () {
-        console.log('questions changed')
         //document.querySelector('iron-list').fire('iron-resize');
       },
       _delete: function (e) {

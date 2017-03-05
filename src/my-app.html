@@ -198,7 +198,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ready: function () {
         console.log('signing in')
         this.$.firebaseAuth1.signInWithEmailAndPassword("demo@demo.demo", "demodemo").then(function (res) {
-          console.log(res)
           if (!this.group) {
             //Setup group if not already Setup
             this.changeGroup();
@@ -208,7 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _routePageChanged: function (page) {
-        this.page = page || 'view1';
+        this.page = page || 'questions';
 
         if (!this.$.drawer.persistent) {
           this.$.drawer.close();

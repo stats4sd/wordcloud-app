@@ -11,22 +11,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!-- IMPORTS for custom elements etc -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../shared-styles.html">
-
 <link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
-
-<link ref="import" href="../../bower_components/polymerfire/polymerfire.html">
-
-<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
-
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link ref="import" href="../../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+
+
 
 
 <!-- Start Element -->
 <dom-module id="comment-element">
   <template>
     <style include="shared-styles">
-      :host {
+       :host {
         /*hide when not opened*/
         display: none;
         /*position: absolute;
@@ -37,11 +35,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         bottom: 0;
         z-index: 1;*/
       }
-      :host([opened]){
+
+       :host([opened]) {
         display: block;
       }
       /* Custom css for tag - TO replace with <tag> custom element! */
-      
+
       .tag {
         padding: 3px 5px;
         margin: 4px 5px;
@@ -50,63 +49,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: #e8ede8;
         display: inline-block;
       }
-      
+
       .selectedTag {
-        background-color: rgb(52, 152, 48);
-        border: 1px green solid;
+        background-color: #9FA8DA;
+        color: white;
+        border: 1px indigo solid;
       }
-      
+
       .card.half {
         width: 30%;
         display: inline-block;
       }
-      
+
       .submit {
         background-color: rgb(33, 110, 14);
         color: white;
         clear: both;
       }
-      
-      .Blue {
-        background-color: blue!important;
-        color: white;
-      }
-      
-      .Green {
-        background-color: green!important;
-        color: white;
-      }
-      
-      .Red {
-        background-color: red!important;
-        color: white;
-      }
-      
-      #commentCard {
-        
-      }
-      /*paper-toast {
-        bottom: 0;
-        left: 0;
-        width: 100%;
-      }*/
     </style>
+
     <!-- Main comment input -->
     <div class="card" id="commentCard">
-      <h1>[[question.text]]</h1>
+      <h1>[[question.questionText]]</h1>
       <div id="commentEdit" hidden$="[[commentSaved]]">
         <h5>1. Add a personal comment into the pot:</h5>
-        <paper-textarea label="Add a comment" always-float-label value="{{comment.text}}"></paper-textarea>
-        <!-- Submit Comment Button -->
+        <paper-textarea label="Add a comment" always-float-label value="{{comment.commentText}}"></paper-textarea>
+        <!-- comment tags -->
         <h5>2. Tag your post</h5>
+        <!--<tags-element id="tagsSelector" question="{{question}}" vals=""></tags-element>-->
+        <iron-selector multi='true' selected-values="{{comment.commentTags}}" selected-class="selectedTag" attr-for-selected="name">
+          <template id='tagRepeat' is='dom-repeat' items='[[allTags]]' as='tag'>
+            <button class='tag' name="[[tag.$key]]">[[tag.tagText]]</button>
+          </template>
+        </iron-selector>
+        <paper-input id="newTagInput" label="Add another tag" maxlength=25 always-float-label value="{{tagText}}"></paper-input>
+        <paper-button style="color:indigo" on-tap="addTag">Add Tag</paper-button>
         <br/><br/>
+        <!-- comment submit -->
         <paper-button raised on-tap="addComment" class$="[[group]]">
           Submit Your Comment
         </paper-button>
+        <p>last modified:[[comment.timestamp]]</p>
         <paper-toast id="submittedText" text="Comment submitted"></paper-toast>
       </div>
       <div class="savedComment" hidden$="[[!commentSaved]]">
-        <p class='comment'>[[comment.text]]</p>
+        <p class='comment'>[[comment.commentText]]</p>
         <span>Tags: </span>
         <template id='tagRepeat' is='dom-repeat' items='[[comment.tags]]' as='tag'>
           <div class='tag'>[[tag]]</div>
@@ -119,14 +106,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- end card -->
     </div>
 
-    <firebase-document 
-    id="commentDoc" 
-    path="[[commentPath]]" 
-    app-name="firebaseApp1"
-    data="{{comment}}"
-    >
+    <firebase-document id="commentDoc" path="[[commentPath]]" app-name="firebaseApp1" data="{{comment}}">
     </firebase-document>
-
+    <firebase-document id="newTagDoc" path="[[allTagsPath]]/[[tagKey]]" app-name="firebaseApp1" data="{{newTag}}">
+    </firebase-document>
+    <!--binding for list of question tags-->
+    <firebase-query id="allTagsQuery" app-name="firebaseApp1" path="[[allTagsPath]]" data="{{allTags}}">
+    </firebase-query>
 
 
   </template>
@@ -139,66 +125,84 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties: {
         comment: {
           type: Object,
-          value:{}
+          value: {},
+          observer: 'commentChanged',
+          notify:true
         },
         commentSaved: {
           type: Boolean,
           value: false
         },
-        savedComments:{
-          type:Object,
-          value:{}
+        savedComments: {
+          type: Object,
+          value: {}
         },
-        opened:{
-          type:Boolean,
+        opened: {
+          type: Boolean,
           // keep html attribute and property value in sync to cause observable change
-          reflectToAttribute:true,
-          readOnly:true,
-          value:true
+          reflectToAttribute: true,
+          readOnly: true,
+          value: true
         },
         // define question object here so can be used from template markup
-        question:{
-          type:Object,
+        question: {
+          type: Object,
           // notify allows to-way binding to element from parent or other elements
-          notify:true
+          notify: true,
+          observer: 'questionChange'
+        },
+        allTags: {
+          type: Array,
+          notify: true
+        },
+        selected: {
+          type: Array,
+          observer: 'selectedChange',
+          notify: true
+        },
+        newTag: {
+          type: Object,
+          notify: true
+        },
+        tagText:{
+          type:String,
+          notify:true,
+          value:""
         }
       },
-
       observers: [
+        'commentChanged(comment.*)'
       ],
-
-      open:function(){
+      selectedChange: function (selected) {
+        console.log(selected)
+      },
+      questionChange: function (question) {
+        this.allTagsPath = 'questions/' + question.$key + '/tags'
+      },
+      commentChanged: function () {
+        //console.log('comment changed', this.comment)
+      },
+      open: function () {
         if (!this.pushId) { this.pushId = generatePushID() }
-        console.log('question opened',this.question)
-        this.commentPath="questions/"+this.question.$key+"/comments/"+this.pushId
+        this.commentPath = "questions/" + this.question.$key + "/comments/" + this.pushId
         //if load any existing comments and unhide editor if none
-        if(this.savedComments[this.question.$key]){
-          this.comment=this.savedComments[this.question.$key]
-          console.log('existing comment',this.comment)
+        if (this.savedComments[this.question.$key]) {
+          this.comment = this.savedComments[this.question.$key]
         }
-        else{
-          this.comment={}
-          this.commentSaved=false
+        else {
+          this.comment = {}
+          this.commentSaved = false
         }
       },
-
       newGroup: function () {
         this.set('comment.group', this.group);
       },
-
       addComment: function () {
+        this.comment.timestamp = Date.now();
+        console.log('comment',this.comment)
         if (this.comment.text && this.question.$key && this.comment.text != "") {
-          this.comment.timestamp = Date.now()
-          //generate unique id to be used for comment and editing
-          if (!this.pushId) { this.pushId = generatePushID() }
-          console.log('path',this.commentPath)
-          console.log('push id', this.pushId)
-          console.log('comment',this.comment)
-          this.$.commentDoc.save(this.commentPath, this.pushId).then(function () {
-            this.savedComments[this.question.$key]=this.comment
-            this.commentSaved = true;
-            //this.comment = {};
-          }.bind(this))
+          this.savedComments[this.question.$key] = this.comment
+          this.commentSaved = true;
         }
       },
 
@@ -211,6 +215,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         }
       },
+      addTag: function () {
+        //if tag typed remove special characters for key and save with tag text to db
+        //automatically select tag
+        if (this.tagText.length>0) {
+          this.tagKey = this.tagText.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
+          this.newTag.tagText = this.tagText
+          this.$.newTagDoc.save(this.allTagsPath, this.tagKey).then(function () {
+            console.log('tag saved')
+            this.tagText = ""
+          }.bind(this))
+        }
+      }
+
 
     });
 
