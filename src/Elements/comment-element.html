@@ -1,33 +1,20 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
-<!-- IMPORTS for custom elements etc -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../shared-styles.html">
 <link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link ref="import" href="../../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
-
-
-
-
 
 <!-- Start Element -->
 <dom-module id="comment-element">
   <template>
     <style include="shared-styles">
-      :host {
+       :host {
         /*hide when not opened*/
-        /*display: none;
+        display: none;
         position: fixed;
         overflow: hidden;
         top: 46px;
@@ -36,14 +23,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         bottom: 0;
         z-index: 1;
         padding: 0;
-        margin: 0;*/
+        margin: 0;
       }
-      
-      :host([opened]) {
+
+       :host([opened]) {
         display: block;
       }
       /* Custom css for tag - TO replace with <tag> custom element! */
-      
+
       .tag {
         padding: 3px 5px;
         margin: 4px 5px;
@@ -52,68 +39,106 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: #e8ede8;
         display: inline-block;
       }
-      
+
+      .cardHolder {
+        margin: 22px 10px 24px 10px;
+        height: 70vh;
+        overflow-y: scroll
+      }
+
       .selectedTag {
         background-color: #9FA8DA;
         color: white;
         border: 1px indigo solid;
       }
-      
+
       .card.half {
         width: 30%;
         display: inline-block;
       }
-      
+
       .submit {
         background-color: rgb(33, 110, 14);
         color: white;
         clear: both;
       }
+
+      .align-right {
+        margin-left: auto;
+        color: black;
+      }
+
+      h5 {
+        margin-bottom: 0;
+      }
+
+      paper-card {
+        --paper-card: {
+          color: var(--group-colour-900);
+          width: 100%;
+          padding: 10px;
+          margin: 0;
+        }
+      }
+
+
+
+      paper-icon-item {
+        display: flex
+      }
     </style>
 
     <!-- Main comment input -->
 
-      <!--<paper-dialog-scrollable>
+    <!--<paper-dialog-scrollable>
         Lorem ipsum...
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button>OK</paper-button>
       </div>-->
 
-    <div class="card" id="commentCard">
-      <h1>[[question.questionText]]</h1>
-      <div id="commentEdit" hidden$="[[commentSaved]]">
-        <h5>1. Add a personal comment into the pot:</h5>
-        <paper-textarea label="Add a comment" always-float-label value="{{comment.commentText}}"></paper-textarea>
-        <!-- comment tags -->
-        <h5>2. Tag your post</h5>
-        <!--<tags-element id="tagsSelector" question="{{question}}" vals=""></tags-element>-->
-        <iron-selector id='tagsSelector' multi='true' selected-values="{{comment.commentTags}}" selected-class="selectedTag" attr-for-selected="name">
-          <template id='tagRepeat' is='dom-repeat' items='[[_toArray(allTags)]]' as='tag'>
-            <button class='tag' name="[[tag.$key]]">[[tag.tagText]]</button>
+
+    <div class="cardHolder" id="commentCard">
+      <paper-card>
+        <paper-icon-item>
+          <div> [[question.questionText]]</div>
+          <div class="align-right" hidden$="{{!adminMode}}">
+            <iron-icon class="align-right" icon="close" item-icon on-tap="close"></iron-icon>
+          </div>
+        </paper-icon-item>
+        <div id="commentEdit" hidden$="[[commentSaved]]">
+          <h5>1. Add your comment:</h5>
+          <paper-textarea label="" no-label-float value="{{comment.commentText}}"></paper-textarea>
+          <!-- comment tags -->
+          <h5>2. Tag your comment</h5>
+          <!--<tags-element id="tagsSelector" question="{{question}}" vals=""></tags-element>-->
+          <iron-selector id='tagsSelector' multi='true' selected-values="{{comment.commentTags}}" selected-class="selectedTag" attr-for-selected="name">
+            <template id='tagRepeat' is='dom-repeat' items='[[_toArray(allTags)]]' as='tag'>
+              <button class='tag' name="[[tag.$key]]">[[tag.tagText]]</button>
+            </template>
+          </iron-selector>
+          <paper-input id="newTagInput" label="Add more tags" maxlength=25 always-float-label value="{{tagText}}"></paper-input>
+          <paper-button style="color:indigo" on-tap="addTag">Add Tag</paper-button>
+          <br/><br/>
+          <!-- comment submit -->
+          <paper-button raised on-tap="addComment" class$="[[group]]">
+            Submit Your Comment
+          </paper-button>
+          <paper-toast id="submittedText" text="Comment submitted"></paper-toast>
+        </div>
+        <div class="savedComment" hidden$="[[!commentSaved]]">
+          <p class='comment'><strong>Comment:</strong>[[comment.commentText]]</p>
+          <span><strong>Tags: </strong></span>
+          <template id='tagRepeat' is='dom-repeat' items='[[comment.commentTags]]' as='tag'>
+            <div class='tag'>[[tag]]</div>
           </template>
-        </iron-selector>
-        <paper-input id="newTagInput" label="Add another tag" maxlength=25 always-float-label value="{{tagText}}"></paper-input>
-        <paper-button style="color:indigo" on-tap="addTag">Add Tag</paper-button>
-        <br/><br/>
-        <!-- comment submit -->
-        <paper-button raised on-tap="addComment" class$="[[group]]">
-          Submit Your Comment
-        </paper-button>
-        <paper-toast id="submittedText" text="Comment submitted"></paper-toast>
-      </div>
-      <div class="savedComment" hidden$="[[!commentSaved]]">
-        <p class='comment'><strong>Comment:</strong>[[comment.commentText]]</p>
-        <span><strong>Tags: </strong></span>
-        <template id='tagRepeat' is='dom-repeat' items='[[comment.commentTags]]' as='tag'>
-          <div class='tag'>[[tag]]</div>
-        </template>
-        <p><strong>Comment submitted: </strong>[[comment.timestamp.string]]</p>
-        <paper-button raised on-tap="editComment" class$="[[group]]">
-          Edit
-        </paper-button>
-      </div>
-      <!-- end card -->
+          <p><strong>Comment submitted: </strong>[[comment.timestamp.string]]</p>
+          <paper-button raised on-tap="editComment" class$="[[group]]">
+            Edit
+          </paper-button>
+        </div>
+        <!-- end card -->
+      </paper-card>
     </div>
 
     <firebase-document id="commentDoc" path="[[commentPath]]" app-name="firebaseApp1" data="{{comment}}">
@@ -155,8 +180,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Boolean,
           // keep html attribute and property value in sync to cause observable change
           reflectToAttribute: true,
-          readOnly: true,
-          value: true
+          // readOnly: true,
+          value: false
         },
         // define question object here so can be used from template markup
         question: {
@@ -221,6 +246,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //console.log('comment changed', this.comment)
       },
       open: function () {
+        this.set('opened', true)
+        console.log('opened?', this.opened)
         //manually get comment from parent as binding not set correctly
         if (!this.pushId) { this.pushId = generatePushID() }
         this.commentPath = "questions/" + this.question.$key + "/comments/" + this.pushId
@@ -233,6 +260,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.comment = {}
           this.commentSaved = false
         }
+      },
+      close: function () {
+        this.set('opened', false)
       },
       addComment: function () {
         //add comment group
@@ -250,6 +280,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.comment = commentTemp
           this.savedComments[this.question.$key] = this.comment
           this.commentSaved = true;
+          this.opened = false
         }
       },
 

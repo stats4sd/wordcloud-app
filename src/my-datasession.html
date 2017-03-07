@@ -24,13 +24,15 @@
     <style include="shared-styles">
        :host {
         display: block;
-        padding: 10px;
+        padding: 0px 10px 0 10px;
         background-color: var(--group-colour-900);
         color: var(--group-colour-50);
+        height: var(--calc-height);
       }
-      p{
-        padding:0 10px 0 10px;
-        margin-top:0px;
+
+      p {
+        padding: 0 10px 0 10px;
+        margin-top: 0px;
       }
     </style>
     <style is="custom-style">
@@ -42,17 +44,21 @@
           margin-top: 2px;
         }
       }
+
       paper-icon-item {
         display: flex
       }
+
       .align-right {
         margin-left: auto
       }
-      .admin{
+
+      .admin {
         background-color: var(--paper-red-50);
-        color:var(--paper-red-900)
+        color: var(--paper-red-900)
       }
-      .adminButton{
+
+      .adminButton {
         background-color: var(--paper-red-900);
         color: var(--paper-red-50);
         bottom: 5px
@@ -82,15 +88,14 @@
     </div>
     <!--add new question-->
     <div class='admin' hidden$="{{!adminMode}}">
-      <paper-input id="newQuestionInput" label="Add new question" always-float-label value="{{newQuestion.questionText}}"
-        on-keydown="checkForEnter">
+      <paper-input id="newQuestionInput" label="Add new question" always-float-label value="{{newQuestion.questionText}}" on-keydown="checkForEnter">
       </paper-input>
       <paper-button raised on-tap="addQuestion" class="adminButton">
-      Add
-      <!--<paper-toast id="submittedTag" text="Tag Added"></paper-toast>-->
-    </paper-button>
+        Add
+        <!--<paper-toast id="submittedTag" text="Tag Added"></paper-toast>-->
+      </paper-button>
     </div>
-    
+
     <comment-element id="commentEditor" question="{{selectedQuestion}}" group="{{group}}"></comment-element>
 
   </template>
@@ -110,12 +115,16 @@
         },
         adminMode: {
           type: Boolean,
-          notify:true,
-          value:false       
+          notify: true,
+          value: false
         },
         group: {
           type: String,
           notify: true,
+        },
+        openComment:{
+          type:Boolean,
+          value:false
         }
       },
       observers: [
@@ -123,18 +132,25 @@
       ],
 
       // Dummy data initialise.
-      ready: function () { },
+      ready: function () {
+        //set height from calculation - probably better way to do this binding to host
+        //but can't figure out
+        this.customStyle['--calc-height'] = window.innerHeight-64+'px'
+        this.updateStyles()
+
+      },
       goToQuestion: function (e) {
         //link to model from template that generated this question
         this.selectedQuestion = e.model.question
+        this.openComment=true
         this.$.commentEditor.open()
       },
       groupChange: function (group) {
         //adjust admin mode if necessary
-        this.adminMode=false
-        if(this.group=='admin'){
-          this.adminMode=true
-          }
+        this.adminMode = false
+        if (this.group == 'admin') {
+          this.adminMode = true
+        }
       },
 
       _questionsChanged: function () {

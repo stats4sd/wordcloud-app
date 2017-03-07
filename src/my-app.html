@@ -50,6 +50,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --app-secondary-color: black;
         display: block;
       }
+      #contentContainer{
+        background-color:var(--group-colour-900)
+      }
 
       app-header {
         color: #fff;
@@ -67,11 +70,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
-
       .drawer-list {
         margin: 0 20px;
       }
-
       .drawer-list a {
         display: block;
         padding: 0 16px;
@@ -79,22 +80,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: var(--app-secondary-color);
         line-height: 40px;
       }
-
       .drawer-list a.iron-selected {
         color: black;
         font-weight: bold;
       }
-
       .submit {
         background-color: var(--group-colour-50);
         color: white;
         clear: both;
       }
-
       .dialog-button {
         color: black;
       }
-
       .footer {
         position: absolute;
         right: 0;
@@ -103,6 +100,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding: 1rem 1rem 8rem 1rem;
         text-align: center;
         color: var(--group-colour-900);
+      }
+      .groupButton{
+        background-color: var(--group-colour-900);
+        color:var(--group-colour-50);
       }
     </style>
 
@@ -116,15 +117,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <app-drawer id="drawer">
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <h5>Data Session</h5>
-          <a name="questions" href="/datasession">Questions</a>
+          <a name="questions" href="/datasession">Data Session</a>
           <!--<a name="view1" href="/view1">Add Comment</a>-->
           <a name="view2" href="/view2">Results</a>
           <hr/>
-          <h5>Review Session</h5>
-          <a name="view3" href="/view3">Placeholder</a>
+          <a name="view3" href="/view3">Review Session</a>
           <div class=footer>
-            <paper-button on-tap='_toggleGroupDialog'>Change Group</paper-button>
+            <paper-button class="groupButton" on-tap='_toggleGroupDialog'>Change Group</paper-button>
             <paper-button on-tap='_toggleAdminMode' style="color:black">Admin Mode</paper-button>
           </div>
         </iron-selector>
