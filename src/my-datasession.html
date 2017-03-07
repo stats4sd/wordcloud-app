@@ -19,29 +19,43 @@
 <link rel="import" href="./Elements/comment-element.html">
 
 <!-- Start Element -->
-<dom-module id="my-questions">
+<dom-module id="my-datasession">
   <template>
     <style include="shared-styles">
-      :host {
+       :host {
         display: block;
-        padding-top: 10px;
+        padding: 10px;
+        background-color: var(--group-colour-900);
+        color: var(--group-colour-50);
+      }
+      p{
+        padding:0 10px 0 10px;
+        margin-top:0px;
       }
     </style>
     <style is="custom-style">
       paper-card {
         --paper-card: {
+          color: var(--group-colour-900);
           width: 100%;
           padding: 10px;
           margin-top: 2px;
         }
       }
-      
       paper-icon-item {
         display: flex
       }
-      
       .align-right {
         margin-left: auto
+      }
+      .admin{
+        background-color: var(--paper-red-50);
+        color:var(--paper-red-900)
+      }
+      .adminButton{
+        background-color: var(--paper-red-900);
+        color: var(--paper-red-50);
+        bottom: 5px
       }
     </style>
     <firebase-query id="questionsQuery" path="/questions" data="{{questions}}" app-name="firebaseApp1"></firebase-query>
@@ -52,36 +66,39 @@
 
     <!-- Main comment input -->
     <div>
-      
-      <h1>Questions</h1>
+
+      <p>Here are a few questions for your consideration. Click to read and provide your comment</p>
       <template id='questionsRepeat' is='dom-repeat' items='[[questions]]' as='question'>
         <paper-card on-tap="goToQuestion" id="[[question.$key]]">
           <paper-icon-item>
             <iron-icon icon="communication:live-help" item-icon></iron-icon>
-            [[question.questionText]]
-            <iron-icon class="align-right" icon="delete" item-icon on-tap="_delete"></iron-icon>
+            <div> [[question.questionText]]</div>
+            <div class="align-right" hidden$="{{!adminMode}}">
+              <iron-icon class="align-right" icon="delete" item-icon on-tap="_delete"></iron-icon>
+            </div>
           </paper-icon-item>
         </paper-card>
       </template>
     </div>
     <!--add new question-->
-    <paper-input id="newQuestionInput" hidden$="[[!isAdmin]]" label="Add new question" always-float-label value="{{newQuestion.questionText}}"
-      on-keydown="checkForEnter">
+    <div class='admin' hidden$="{{!adminMode}}">
+      <paper-input id="newQuestionInput" label="Add new question" always-float-label value="{{newQuestion.questionText}}"
+        on-keydown="checkForEnter">
       </paper-input>
-      <paper-button raised on-tap="addQuestion" class$="[[group]]">
-        Add
-        <paper-toast id="submittedTag" text="Tag Added"></paper-toast>
-      </paper-button>
-
-      <h1>Add Comments</h1>
-      <comment-element id="commentEditor" question="{{selectedQuestion}}" group="{{group}}"></comment-element>
+      <paper-button raised on-tap="addQuestion" class="adminButton">
+      Add
+      <!--<paper-toast id="submittedTag" text="Tag Added"></paper-toast>-->
+    </paper-button>
+    </div>
+    
+    <comment-element id="commentEditor" question="{{selectedQuestion}}" group="{{group}}"></comment-element>
 
   </template>
 
   <!-- Scripts for element -->
   <script>
     Polymer({
-      is: 'my-questions',
+      is: 'my-datasession',
       properties: {
         questions: {
           type: Array,
@@ -91,9 +108,10 @@
         newQuestion: {
           type: String
         },
-        isAdmin: {
+        adminMode: {
           type: Boolean,
-          value: true
+          notify:true,
+          value:false       
         },
         group: {
           type: String,
@@ -101,7 +119,7 @@
         }
       },
       observers: [
-        'newGroup(group)',
+        'groupChange(group)',
       ],
 
       // Dummy data initialise.
@@ -111,9 +129,12 @@
         this.selectedQuestion = e.model.question
         this.$.commentEditor.open()
       },
-      newGroup: function (group) {
-        console.log('new group', group)
-        this.group = group
+      groupChange: function (group) {
+        //adjust admin mode if necessary
+        this.adminMode=false
+        if(this.group=='admin'){
+          this.adminMode=true
+          }
       },
 
       _questionsChanged: function () {

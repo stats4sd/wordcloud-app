@@ -14,20 +14,20 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: var(--custom-background);
+        background-color: var(--group-colour-900);
         transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1;
-        color: var(--custom-color);
+        color: var(--group-colour-50);
         padding: 10px
       }
       
       paper-button {
         margin: 2px;
         background: white;
-        color: var(--custom-background)
+        color: var(--group-colour-900)
       }
-      
-      :host([signed-in]) {
+      /*make invisible on actions completed*/
+      :host([completed]) {
         opacity: 0;
         pointer-events: none;
       }
@@ -72,8 +72,8 @@
     </div>
     <div hidden$="{{!groupSelected}}">
       <p>Then, choose one of the following:</p>
-      <paper-button raised class="select" on-tap="goToSession">Data Session</paper-button>
-      <paper-button raised class="select" on-tap="goToSession">End of Day Review</paper-button>
+      <paper-button raised class="select" on-tap="goToSession" id="datasession">Data Session</paper-button>
+      <paper-button raised class="select" on-tap="goToSession" id="reviewsession">End of Day Review</paper-button>
     </div>
 
 
@@ -96,7 +96,7 @@
           reflectToAttribute: true,
           value: false
         },
-        signedIn: {
+        completed: {
           type: Boolean,
           reflectToAttribute: true,
           value: false
@@ -121,6 +121,10 @@
           type: Boolean,
           notify: true,
           value: false
+        },
+        session:{
+          type:String,
+          notify:true
         }
       },
       signIn: function () {
@@ -132,12 +136,12 @@
 
 
       groupchange: function () {
-        console.log('group changed, setting colour')
         //define group colors
         //color name used with material pallette colors
         //could be included somewhere else with group names
         var colors = {
           select: 'red',
+          admin:'blue-grey',
           green: 'green',
           red: 'red',
           blue: 'blue'
@@ -146,18 +150,18 @@
         if (this.group != 'select') {
           this.groupSelected = true
         }
-          this.customStyle['--custom-background'] = 'var(--paper-' + this.groupColour + '-900)'
-          this.customStyle['--custom-color'] = 'var(--paper-' + this.groupColour + '-50)'        
+          this.customStyle['--group-colour-900'] = 'var(--paper-' + this.groupColour + '-900)'
+          this.customStyle['--group-colour-50'] = 'var(--paper-' + this.groupColour + '-50)'        
         this.updateStyles()
       },
       selectGroup: function () {
-        console.log('toggling group select')
         this.toggleGroupDialog = !this.toggleGroupDialog;
       },
       _dialogButton: function (group) { return "dialog-button " + group; },
-      goToSession: function () {
-        console.log('going to session?')
-        this['signedIn'] = true
+      
+      goToSession: function (e) {
+        this.session=e.srcElement.id
+        this['completed'] = true
       }
     });
   </script>
