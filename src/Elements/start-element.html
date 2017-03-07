@@ -1,0 +1,164 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="start-element">
+  <template>
+    <style>
+      :host {
+        position: absolute;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--custom-background);
+        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1;
+        color: var(--custom-color);
+        padding: 10px
+      }
+      
+      paper-button {
+        margin: 2px;
+        background: white;
+        color: var(--custom-background)
+      }
+      
+      :host([signed-in]) {
+        opacity: 0;
+        pointer-events: none;
+      }
+      
+      paper-dropdown-menu-light {
+        --paper-dropdown-menu-label: {
+          color: var(--paper-red-900);
+          background-color: white;
+          font-style: bold;
+          font-size: larger;
+        }
+        --paper-dropdown-menu-input: {
+          color: var(--paper-red-900);
+          font-style: bold;
+          font-size: larger;
+          /*text-transform: uppercase;*/
+          /* no underline */
+          border-bottom: none!important;
+        }
+        ;
+      }
+      
+      .footer {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 1rem 1rem 0 1rem;
+        text-align: center;
+        color: var(--paper-red-50);
+      }
+      
+      ;
+    </style>
+
+
+    <h2>Leadership Meeting Demo</h2>
+    <h3>Instructions</h3>
+    <div hidden$="{{groupSelected}}">
+      <p>First, select your group</p>
+      <paper-button on-tap="selectGroup" raised>{{group}}</paper-button>
+    </div>
+    <div hidden$="{{!groupSelected}}">
+      <p>Then, choose one of the following:</p>
+      <paper-button raised class="select" on-tap="goToSession">Data Session</paper-button>
+      <paper-button raised class="select" on-tap="goToSession">End of Day Review</paper-button>
+    </div>
+
+
+    <div class="footer">
+      <h3>Statistics for Sustainable Development</h3>
+
+    </div>
+  
+  </template>
+
+  <body>
+
+  </body>
+  <script>
+    Polymer({
+      is: 'start-element',
+      properties: {
+        disabled: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        },
+        signedIn: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        },
+        group: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          value: "select"
+        },
+        groupColour:{
+          type:String,
+          notify:true,
+          reflectToAttribute:true
+        },
+        toggleGroupDialog: {
+          type: Boolean,
+          reflectToAttribute: true,
+          notify: true
+        },
+        groupSelected: {
+          type: Boolean,
+          notify: true,
+          value: false
+        }
+      },
+      signIn: function () {
+        this.fire('sign-in', null, { bubbles: false });
+      },
+      observers: [
+        'groupchange(group.*)'
+      ],
+
+
+      groupchange: function () {
+        console.log('group changed, setting colour')
+        //define group colors
+        //color name used with material pallette colors
+        //could be included somewhere else with group names
+        var colors = {
+          select: 'red',
+          green: 'green',
+          red: 'red',
+          blue: 'blue'
+        }
+        this.groupColour=colors[this.group]
+        if (this.group != 'select') {
+          this.groupSelected = true
+        }
+          this.customStyle['--custom-background'] = 'var(--paper-' + this.groupColour + '-900)'
+          this.customStyle['--custom-color'] = 'var(--paper-' + this.groupColour + '-50)'        
+        this.updateStyles()
+      },
+      selectGroup: function () {
+        console.log('toggling group select')
+        this.toggleGroupDialog = !this.toggleGroupDialog;
+      },
+      _dialogButton: function (group) { return "dialog-button " + group; },
+      goToSession: function () {
+        console.log('going to session?')
+        this['signedIn'] = true
+      }
+    });
+  </script>
+</dom-module>

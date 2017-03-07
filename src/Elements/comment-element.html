@@ -20,27 +20,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 
+
 <!-- Start Element -->
 <dom-module id="comment-element">
   <template>
     <style include="shared-styles">
-       :host {
+      :host {
         /*hide when not opened*/
-        display: none;
-        /*position: absolute;
+        /*display: none;
+        position: fixed;
         overflow: hidden;
         top: 46px;
         left: 0;
         right: 0;
         bottom: 0;
-        z-index: 1;*/
+        z-index: 1;
+        padding: 0;
+        margin: 0;*/
       }
-
-       :host([opened]) {
+      
+      :host([opened]) {
         display: block;
       }
       /* Custom css for tag - TO replace with <tag> custom element! */
-
+      
       .tag {
         padding: 3px 5px;
         margin: 4px 5px;
@@ -49,18 +52,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: #e8ede8;
         display: inline-block;
       }
-
+      
       .selectedTag {
         background-color: #9FA8DA;
         color: white;
         border: 1px indigo solid;
       }
-
+      
       .card.half {
         width: 30%;
         display: inline-block;
       }
-
+      
       .submit {
         background-color: rgb(33, 110, 14);
         color: white;
@@ -69,6 +72,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <!-- Main comment input -->
+
+      <!--<paper-dialog-scrollable>
+        Lorem ipsum...
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button>OK</paper-button>
+      </div>-->
+
     <div class="card" id="commentCard">
       <h1>[[question.questionText]]</h1>
       <div id="commentEdit" hidden$="[[commentSaved]]">
@@ -77,8 +88,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- comment tags -->
         <h5>2. Tag your post</h5>
         <!--<tags-element id="tagsSelector" question="{{question}}" vals=""></tags-element>-->
-        <iron-selector multi='true' selected-values="{{comment.commentTags}}" selected-class="selectedTag" attr-for-selected="name">
-          <template id='tagRepeat' is='dom-repeat' items='[[allTags]]' as='tag'>
+        <iron-selector id='tagsSelector' multi='true' selected-values="{{comment.commentTags}}" selected-class="selectedTag" attr-for-selected="name">
+          <template id='tagRepeat' is='dom-repeat' items='[[_toArray(allTags)]]' as='tag'>
             <button class='tag' name="[[tag.$key]]">[[tag.tagText]]</button>
           </template>
         </iron-selector>
@@ -89,16 +100,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-button raised on-tap="addComment" class$="[[group]]">
           Submit Your Comment
         </paper-button>
-        <p>last modified:[[comment.timestamp]]</p>
         <paper-toast id="submittedText" text="Comment submitted"></paper-toast>
       </div>
       <div class="savedComment" hidden$="[[!commentSaved]]">
-        <p class='comment'>[[comment.commentText]]</p>
-        <span>Tags: </span>
-        <template id='tagRepeat' is='dom-repeat' items='[[comment.tags]]' as='tag'>
+        <p class='comment'><strong>Comment:</strong>[[comment.commentText]]</p>
+        <span><strong>Tags: </strong></span>
+        <template id='tagRepeat' is='dom-repeat' items='[[comment.commentTags]]' as='tag'>
           <div class='tag'>[[tag]]</div>
         </template>
-        <br><br>
+        <p><strong>Comment submitted: </strong>[[comment.timestamp.string]]</p>
         <paper-button raised on-tap="editComment" class$="[[group]]">
           Edit
         </paper-button>
@@ -111,8 +121,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <firebase-document id="newTagDoc" path="[[allTagsPath]]/[[tagKey]]" app-name="firebaseApp1" data="{{newTag}}">
     </firebase-document>
     <!--binding for list of question tags-->
-    <firebase-query id="allTagsQuery" app-name="firebaseApp1" path="[[allTagsPath]]" data="{{allTags}}">
-    </firebase-query>
+    <firebase-document id="allTagsQuery" app-name="firebaseApp1" path="[[allTagsPath]]" data="{{allTags}}">
+    </firebase-document>
 
 
   </template>
@@ -127,7 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Object,
           value: {},
           observer: 'commentChanged',
-          notify:true
+          notify: true
         },
         commentSaved: {
           type: Boolean,
@@ -136,6 +146,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         savedComments: {
           type: Object,
           value: {}
+        },
+        group: {
+          type: String,
+          notify: true
         },
         opened: {
           type: Boolean,
@@ -164,43 +178,76 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Object,
           notify: true
         },
-        tagText:{
-          type:String,
-          notify:true,
-          value:""
+        tagText: {
+          type: String,
+          notify: true,
+          value: ""
         }
       },
       observers: [
-        'commentChanged(comment.*)'
+        'commentChanged(comment.*)',
+        'commentTagsChanged(comment.commentTags.*)',
+        'allTagsChanged(allTags.*)',
+        'newGroup(group)',
       ],
+      //specific funciton to map firebase doc to array, appending key as $key (not generalised)
+      _toArray(json) {
+        var array = Object.keys(json).map(function (k) {
+          var temp = json[k]
+          temp.$key = k
+          return temp
+        })
+        return array
+        //this.allTags=array
+      },
+      commentTagsChanged: function (commentTags) {
+        //console.log('comment tags changed',commentTags)
+      },
+      newGroup: function (group) {
+        this.group = group
+      },
+      allTagsChanged: function (change) {
+        //console.log('all tags changed',change)
+      },
       selectedChange: function (selected) {
-        console.log(selected)
+        //console.log(selected)
       },
       questionChange: function (question) {
+        //console.log('changing question', question)
         this.allTagsPath = 'questions/' + question.$key + '/tags'
+
       },
       commentChanged: function () {
         //console.log('comment changed', this.comment)
       },
       open: function () {
+        //manually get comment from parent as binding not set correctly
         if (!this.pushId) { this.pushId = generatePushID() }
         this.commentPath = "questions/" + this.question.$key + "/comments/" + this.pushId
         //if load any existing comments and unhide editor if none
         if (this.savedComments[this.question.$key]) {
           this.comment = this.savedComments[this.question.$key]
+          this.commentSaved = true
         }
         else {
           this.comment = {}
           this.commentSaved = false
         }
       },
-      newGroup: function () {
-        this.set('comment.group', this.group);
-      },
       addComment: function () {
-        this.comment.timestamp = Date.now();
-        console.log('comment',this.comment)
-        if (this.comment.text && this.question.$key && this.comment.text != "") {
+        //add comment group
+        this.comment.group = this.group
+        //add date epoch and string
+        this.comment.timestamp = {
+          epoch: Date.now(),
+          string: new Date().toLocaleString(),
+        }
+        if (this.comment.commentText && this.question.$key && this.comment.text != "") {
+          console.log('saving comment', this.comment)
+          //dirty update to force comment refresh
+          var commentTemp = this.comment
+          this.comment = {}
+          this.comment = commentTemp
           this.savedComments[this.question.$key] = this.comment
           this.commentSaved = true;
         }
@@ -208,6 +255,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       editComment: function () {
         this.commentSaved = false;
+        //reselect tags - messy override method
+        if (this.comment.commentTags[0])
+          this.$.tagsSelector.forceSynchronousItemUpdate()
+        var tagsTemp = this.comment.commentTags
+        this.commentTags = []
+        this.commentTags = tagsTemp
       },
       checkForEnter: function (e) {
         if (e.keyCode === 13) {
@@ -218,7 +271,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       addTag: function () {
         //if tag typed remove special characters for key and save with tag text to db
         //automatically select tag
-        if (this.tagText.length>0) {
+        if (this.tagText.length > 0) {
           this.tagKey = this.tagText.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
           this.newTag.tagText = this.tagText
           this.$.newTagDoc.save(this.allTagsPath, this.tagKey).then(function () {
@@ -233,6 +286,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     //code used by polymer to create pushid. As not exposed to api (?) running manually
     // https://gist.github.com/mikelehen/3596a30bd69384624c11
+    //https://firebase.googleblog.com/2015/02/the-2120-ways-to-ensure-unique_68.html
     generatePushID = (function () {
       // Modeled after base64 web-safe chars, but ordered by ASCII.
       var PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';

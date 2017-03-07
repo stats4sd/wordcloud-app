@@ -22,7 +22,7 @@
 <dom-module id="my-questions">
   <template>
     <style include="shared-styles">
-       :host {
+      :host {
         display: block;
         padding-top: 10px;
       }
@@ -35,31 +35,24 @@
           margin-top: 2px;
         }
       }
-
-
+      
       paper-icon-item {
         display: flex
       }
-
-
+      
       .align-right {
         margin-left: auto
       }
     </style>
     <firebase-query id="questionsQuery" path="/questions" data="{{questions}}" app-name="firebaseApp1"></firebase-query>
-    <firebase-document 
-    id="newQuestion" 
-    data="{{newQuestion}}" 
-    app-name="firebaseApp1">
+    <firebase-document id="newQuestion" data="{{newQuestion}}" app-name="firebaseApp1">
     </firebase-document>
-    <firebase-document 
-    id="removeQuestion" 
-    path="/questions/{{selectedQuestion.$key}}" 
-    app-name="firebaseApp1">
+    <firebase-document id="removeQuestion" path="/questions/{{selectedQuestion.$key}}" app-name="firebaseApp1">
     </firebase-document>
 
     <!-- Main comment input -->
     <div>
+      
       <h1>Questions</h1>
       <template id='questionsRepeat' is='dom-repeat' items='[[questions]]' as='question'>
         <paper-card on-tap="goToQuestion" id="[[question.$key]]">
@@ -74,14 +67,14 @@
     <!--add new question-->
     <paper-input id="newQuestionInput" hidden$="[[!isAdmin]]" label="Add new question" always-float-label value="{{newQuestion.questionText}}"
       on-keydown="checkForEnter">
-    </paper-input>
-    <paper-button raised on-tap="addQuestion" class$="[[group]]">
-      Add
-      <paper-toast id="submittedTag" text="Tag Added"></paper-toast>
-    </paper-button>
+      </paper-input>
+      <paper-button raised on-tap="addQuestion" class$="[[group]]">
+        Add
+        <paper-toast id="submittedTag" text="Tag Added"></paper-toast>
+      </paper-button>
 
-    <h1>Add Comments</h1>
-    <comment-element id="commentEditor" question="{{selectedQuestion}}"></comment-element>
+      <h1>Add Comments</h1>
+      <comment-element id="commentEditor" question="{{selectedQuestion}}" group="{{group}}"></comment-element>
 
   </template>
 
@@ -101,8 +94,15 @@
         isAdmin: {
           type: Boolean,
           value: true
+        },
+        group: {
+          type: String,
+          notify: true,
         }
       },
+      observers: [
+        'newGroup(group)',
+      ],
 
       // Dummy data initialise.
       ready: function () { },
@@ -111,14 +111,18 @@
         this.selectedQuestion = e.model.question
         this.$.commentEditor.open()
       },
+      newGroup: function (group) {
+        console.log('new group', group)
+        this.group = group
+      },
 
       _questionsChanged: function () {
         //document.querySelector('iron-list').fire('iron-resize');
       },
       _delete: function (e) {
-        this.selectedQuestion=e.model.question
+        this.selectedQuestion = e.model.question
         //if (!this.$.removeQuestion.isNew) {
-          this.$.removeQuestion.destroy();
+        this.$.removeQuestion.destroy();
         //}
         return Promise.resolve();
 
@@ -142,8 +146,6 @@
       },
 
     });
-
-    
   </script>
 
 </dom-module>
