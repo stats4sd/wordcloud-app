@@ -50,19 +50,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --app-secondary-color: black;
         display: block;
       }
-      #contentContainer{
-        background-color:var(--group-colour-900)
+
+      #contentContainer {
+        background-color: var(--group-colour-900)
       }
+
 
       app-header {
         color: #fff;
         background-color: var(--group-colour-900);
       }
 
+
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
       }
       /*styling for app draw*/
+
       app-drawer {
         --app-drawer-width: 150px;
         --app-drawer-content-container: {
@@ -70,9 +74,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
+
       .drawer-list {
         margin: 0 20px;
       }
+
       .drawer-list a {
         display: block;
         padding: 0 16px;
@@ -80,18 +86,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: var(--app-secondary-color);
         line-height: 40px;
       }
+
       .drawer-list a.iron-selected {
         color: black;
         font-weight: bold;
       }
+
       .submit {
         background-color: var(--group-colour-50);
         color: white;
         clear: both;
       }
+
       .dialog-button {
         color: black;
       }
+
       .footer {
         position: absolute;
         right: 0;
@@ -101,9 +111,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         text-align: center;
         color: var(--group-colour-900);
       }
-      .groupButton{
+
+      .groupButton {
         background-color: var(--group-colour-900);
-        color:var(--group-colour-50);
+        color: var(--group-colour-50);
       }
     </style>
 
@@ -151,11 +162,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <paper-dialog id="groupDialog" modal>
       <h1>Select Group</h1>
-      <paper-listbox class="dropdown-content" selected="{{group}}" attr-for-selected="value">
-        <paper-item value="green">Green</paper-item>
-        <paper-item value="red">Red</paper-item>
-        <paper-item value="blue">Blue</paper-item>
-      </paper-listbox>
+        <paper-listbox class="dropdown-content" selected="{{group}}" attr-for-selected="value">
+          <paper-item value="green">Green</paper-item>
+          <paper-item value="red">Red</paper-item>
+          <paper-item value="blue">Blue</paper-item>
+        </paper-listbox>
     </paper-dialog>
 
     <firebase-auth id="firebaseAuth1" signed-in="{{signedIn}}" user="{{user}}" app-name="firebaseApp1"></firebase-auth>

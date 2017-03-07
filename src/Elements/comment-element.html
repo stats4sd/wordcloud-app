@@ -15,7 +15,9 @@
        :host {
         /*hide when not opened*/
         display: none;
-        position: fixed;
+        margin:0;
+        padding:0;
+        /*position: fixed;
         overflow: hidden;
         top: 46px;
         left: 0;
@@ -23,7 +25,7 @@
         bottom: 0;
         z-index: 1;
         padding: 0;
-        margin: 0;
+        */
       }
 
        :host([opened]) {
@@ -41,9 +43,8 @@
       }
 
       .cardHolder {
-        margin: 22px 10px 24px 10px;
-        height: 70vh;
-        overflow-y: scroll
+        margin: 0;
+        overflow-y: auto;
       }
 
       .selectedTag {
@@ -80,8 +81,6 @@
           margin: 0;
         }
       }
-
-
 
       paper-icon-item {
         display: flex
@@ -180,6 +179,7 @@
           type: Boolean,
           // keep html attribute and property value in sync to cause observable change
           reflectToAttribute: true,
+          notify:true,
           // readOnly: true,
           value: false
         },
@@ -246,8 +246,6 @@
         //console.log('comment changed', this.comment)
       },
       open: function () {
-        this.set('opened', true)
-        console.log('opened?', this.opened)
         //manually get comment from parent as binding not set correctly
         if (!this.pushId) { this.pushId = generatePushID() }
         this.commentPath = "questions/" + this.question.$key + "/comments/" + this.pushId
