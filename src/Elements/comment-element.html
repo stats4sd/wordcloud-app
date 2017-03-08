@@ -230,7 +230,7 @@
         'newGroup(group)',
       ],
       //specific funciton to map firebase doc to array, appending key as $key (not generalised)
-      _toArray(json) {
+      _toArray:function(json) {
         var array = Object.keys(json).map(function (k) {
           var temp = json[k]
           temp.$key = k
