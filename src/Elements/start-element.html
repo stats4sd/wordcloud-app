@@ -7,7 +7,7 @@
 <dom-module id="start-element">
   <template>
     <style>
-      :host {
+       :host {
         position: absolute;
         height: 100vh;
         top: 0;
@@ -20,18 +20,21 @@
         color: var(--group-colour-50);
         padding: 0 10px 0 10px
       }
-      
+
+
       paper-button {
         margin: 2px;
         background: white;
         color: var(--group-colour-900)
       }
       /*make invisible on actions completed*/
-      :host([completed]) {
+
+       :host([completed]) {
         opacity: 0;
         pointer-events: none;
       }
-      
+
+
       paper-dropdown-menu-light {
         --paper-dropdown-menu-label: {
           color: var(--paper-red-900);
@@ -49,7 +52,8 @@
         }
         ;
       }
-      
+
+
       .footer {
         position: absolute;
         right: 0;
@@ -59,7 +63,7 @@
         text-align: center;
         color: var(--paper-red-50);
       }
-      
+
       ;
     </style>
 
@@ -73,7 +77,7 @@
     <div hidden$="{{!groupSelected}}">
       <p>Then, choose one of the following:</p>
       <paper-button raised class="select" on-tap="goToSession" id="datasession">Data Session</paper-button>
-      <paper-button raised class="select" on-tap="goToSession" id="reviewsession">End of Day Review</paper-button>
+      <paper-button raised class="select" on-tap="goToSession" id="dailyReview">Daily Review</paper-button>
     </div>
 
 
@@ -81,7 +85,7 @@
       <h3>Statistics for Sustainable Development</h3>
 
     </div>
-  
+
   </template>
 
   <body>
@@ -107,10 +111,10 @@
           reflectToAttribute: true,
           value: "select"
         },
-        groupColour:{
-          type:String,
-          notify:true,
-          reflectToAttribute:true
+        groupColour: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
         },
         toggleGroupDialog: {
           type: Boolean,
@@ -122,9 +126,9 @@
           notify: true,
           value: false
         },
-        session:{
-          type:String,
-          notify:true
+        session: {
+          type: String,
+          notify: true
         }
       },
       signIn: function () {
@@ -140,27 +144,31 @@
         //color name used with material pallette colors
         //could be included somewhere else with group names
         var colors = {
-          select: 'red',
-          admin:'blue-grey',
-          green: 'green',
-          red: 'red',
-          blue: 'blue'
+          select: 'red', 
+          admin: 'blue-grey', 
+          director: 'green', 
+          regional: 'yellow', 
+          imep: 'blue', 
+          rms: 'red', 
+          crossCutting: 'teal',
+          AC: 'brown', 
+          other: 'purple',
         }
-        this.groupColour=colors[this.group]
+        this.groupColour = colors[this.group]
         if (this.group != 'select') {
           this.groupSelected = true
         }
-          this.customStyle['--group-colour-900'] = 'var(--paper-' + this.groupColour + '-900)'
-          this.customStyle['--group-colour-50'] = 'var(--paper-' + this.groupColour + '-50)'        
+        this.customStyle['--group-colour-900'] = 'var(--paper-' + this.groupColour + '-900)'
+        this.customStyle['--group-colour-50'] = 'var(--paper-' + this.groupColour + '-50)'
         this.updateStyles()
       },
       selectGroup: function () {
         this.toggleGroupDialog = !this.toggleGroupDialog;
       },
       _dialogButton: function (group) { return "dialog-button " + group; },
-      
+
       goToSession: function (e) {
-        this.session=e.srcElement.id
+        this.session = e.srcElement.id
         this['completed'] = true
       }
     });

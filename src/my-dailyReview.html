@@ -20,7 +20,7 @@
 <link rel="import" href="./Elements/comment-element.html">
 
 <!-- Start Element -->
-<dom-module id="my-datasession">
+<dom-module id="my-dailyReview">
   <template>
     <style include="shared-styles">
        :host {
@@ -31,7 +31,7 @@
         height: var(--calc-height);
       }
 
-      p {
+       p{
         padding: 0 10px 0 10px;
         margin-top: 0px;
       }
@@ -64,35 +64,25 @@
         color: var(--paper-red-50);
         bottom: 5px
       }
-      iframe{
-        margin-top:24px;
-        width:100%;
-        min-height: 300px;
-        height:70vh
-      }
     </style>
     <firebase-query id="questionsQuery" path="/questions" data="{{questions}}" app-name="firebaseApp1"></firebase-query>
     <firebase-document id="newQuestion" data="{{newQuestion}}" app-name="firebaseApp1">
     </firebase-document>
     <firebase-document id="removeQuestion" path="/questions/{{selectedQuestion.$key}}" app-name="firebaseApp1">
     </firebase-document>
-    <firebase-document id="sessionTags" data="{{sessionTags}}" path="/questions/_dataSession/tags" app-name="firebaseApp1">
-    </firebase-document>
-    <firebase-document id="removeTag" path="/questions/_dataSession/tags/{{selectedTag.$key}}" app-name="firebaseApp1">
-  </firebase-document>
 
     <!-- Main comment input -->
-    
-      <p>During the session, feel free to add comments using the form.
-        <br>
-        Results will appear below.
-      </p>
-      <div hidden$="{{openComment}}">
-      <template id='questionsRepeat' is='dom-repeat' items='[[questions]]' as='question' filter='isNotReviewQuestion'>
+
+    <p>Each day you will be asked to add reflections for the end of day review. Questions are listed below.</p>
+    <div hidden$="{{openComment}}">
+      <template id='questionsRepeat' is='dom-repeat' items='[[questions]]' as='question' filter="isReviewQuestion">
         <paper-card on-tap="goToQuestion" id="[[question.$key]]">
           <paper-icon-item>
-            <!--<iron-icon icon="communication:live-help" item-icon></iron-icon>-->
+            <iron-icon icon="communication:live-help" item-icon></iron-icon>
             <div> [[question.questionText]]</div>
+            <div class="align-right" hidden$="{{!adminMode}}">
+              <iron-icon class="align-right" icon="delete" item-icon on-tap="_delete"></iron-icon>
+            </div>
             <!--<div class="align-right" hidden$="{{adminMode}}">
               <iron-icon class="align-right" icon="editor:insert-chart"></iron-icon>
               [[getLength(question)]]
@@ -101,41 +91,32 @@
         </paper-card>
       </template>
     </div>
-
-    <comment-element id="commentEditor" allow-multiple=true question="{{selectedQuestion}}" group="{{group}}" opened="{{openComment}}"></comment-element>
-    
-    <!--admin section-->
-    <div id="admin" hidden$="{{!adminMode}}" class="admin">
-      <h4>Remove Tags</h4>
-        <template id='tagRepeat' is='dom-repeat' items='[[_toArray(sessionTags)]]' as='tag'>
-          <paper-card>
-            <paper-icon-item>
-              <div>[[tag.tagText]]</div>
-              <div class="align-right" hidden$="{{!adminMode}}">
-                <iron-icon class="align-right" icon="delete" item-icon on-tap="_deleteTag"></iron-icon>
-              </div>
-            </paper-icon-item>
-          </paper-card>
-        </template>
+    <!--add new question-->
+    <div class='admin' hidden$="{{!adminMode}}">
+      <paper-input id="newQuestionInput" label="Add new question" always-float-label value="{{newQuestion.questionText}}" on-keydown="checkForEnter">
+      </paper-input>
+      <paper-button raised on-tap="addQuestion" class="adminButton">
+        Add
+        <!--<paper-toast id="submittedTag" text="Tag Added"></paper-toast>-->
+      </paper-button>
     </div>
 
-    <!--results-->
-    <iframe src="http://shiny.stats4sd.org/word-demo/"></iframe>
+    <comment-element id="commentEditor" question="{{selectedQuestion}}" group="{{group}}" opened="{{openComment}}"></comment-element>
 
   </template>
 
   <!-- Scripts for element -->
   <script>
     Polymer({
-      is: 'my-datasession',
+      is: 'my-dailyReview',
       properties: {
         questions: {
           type: Array,
           value: [],
         },
-        questionLengths:{
-          type:Array,
-          
+        questionLengths: {
+          type: Array,
+
         },
         newQuestion: {
           type: String
@@ -145,58 +126,47 @@
           notify: true,
           value: false
         },
-        adminData:{
-          type:Object,
-          notify:true
-        },
         group: {
           type: String,
           notify: true,
         },
-        openComment:{
-          type:Boolean,
-          value:false,
-          notify:true
+        openComment: {
+          type: Boolean,
+          value: false,
+          notify: true
         }
       },
       observers: [
         'groupChange(group)',
-
       ],
+      isReviewQuestion:function(question){
+        return question.$key!='_dataSession'
+      },
 
       // Dummy data initialise.
       ready: function () {
         //set height from calculation - probably better way to do this binding to host
         //but can't figure out
-        this.customStyle['--calc-height'] = window.innerHeight-64+'px'
+        this.customStyle['--calc-height'] = window.innerHeight - 64 + 'px'
         this.updateStyles()
 
       },
-       _toArray:function(json) {
-          var array = Object.keys(json).map(function (k) { 
-            var temp = json[k] 
-            temp.$key = k 
-            return temp 
-          }) 
-          return array 
-          //this.allTags=array 
-        },
-
-      isNotReviewQuestion:function(question){
-         return question.$key == '_dataSession'
+      _reviewQuestionFilter:function(question){
+        console.log('filter',question)
+        return true
       },
-      getLength:function(question){
-        console.log('computing length',question)
-        if(question.comments){
-          console.log('keys',Object.keys(question.comments).length)
+      getLength: function (question) {
+        console.log('computing length', question)
+        if (question.comments) {
+          console.log('keys', Object.keys(question.comments).length)
           return Object.keys(question.comments).length
         }
-        else{return 0} 
+        else { return 0 }
       },
       goToQuestion: function (e) {
         //link to model from template that generated this question
         this.selectedQuestion = e.model.question
-        this.openComment=true
+        this.openComment = true
         this.$.commentEditor.open()
       },
       groupChange: function (group) {
@@ -209,18 +179,16 @@
 
       _questionsChanged: function () {
         //document.querySelector('iron-list').fire('iron-resize');
-        console.log('questions changed',this.questions)
+        console.log('questions changed', this.questions)
       },
       _delete: function (e) {
         this.selectedQuestion = e.model.question
+        //if (!this.$.removeQuestion.isNew) {
         this.$.removeQuestion.destroy();
+        //}
         return Promise.resolve();
+
       },
-       _deleteTag: function (e) {
-        this.selectedTag=e.model.tag;
-        this.$.removeTag.destroy(); 
-        return Promise.resolve();
-        },
       checkForEnter: function (e) {
         if (e.keyCode === 13) { this.addQuestion(); }
       },

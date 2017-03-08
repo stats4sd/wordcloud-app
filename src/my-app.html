@@ -33,13 +33,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
 
-
-
-
-<!--<link rel="import" href="my-view1.html">-->
-<link rel="import" href="my-view2.html">
-<link rel="import" href="my-view3.html">
-<link rel="import" href="my-questions.html">
+<link rel="import" href="my-dailyReview.html">
+<link rel="import" href="my-datasession.html">
 <link rel="import" href="Elements/start-element.html">
 
 <dom-module id="my-app">
@@ -51,9 +46,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
 
+
       #contentContainer {
         background-color: var(--group-colour-900)
       }
+
 
 
       app-header {
@@ -62,10 +59,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
 
+
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
       }
       /*styling for app draw*/
+
 
       app-drawer {
         --app-drawer-width: 150px;
@@ -75,9 +74,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
 
+
       .drawer-list {
         margin: 0 20px;
       }
+
 
       .drawer-list a {
         display: block;
@@ -87,10 +88,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         line-height: 40px;
       }
 
+
       .drawer-list a.iron-selected {
         color: black;
         font-weight: bold;
       }
+
 
       .submit {
         background-color: var(--group-colour-50);
@@ -98,9 +101,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         clear: both;
       }
 
+
       .dialog-button {
         color: black;
       }
+
 
       .footer {
         position: absolute;
@@ -111,6 +116,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         text-align: center;
         color: var(--group-colour-900);
       }
+
 
       .groupButton {
         background-color: var(--group-colour-900);
@@ -129,10 +135,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar>Menu</app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="questions" href="/datasession">Data Session</a>
-          <!--<a name="view1" href="/view1">Add Comment</a>-->
-          <a name="view2" href="/view2">Results</a>
           <hr/>
-          <a name="view3" href="/view3">Review Session</a>
+          <a name="dailyReview" href="/dailyReview">Daily Review</a>
           <div class=footer>
             <paper-button class="groupButton" on-tap='_toggleGroupDialog'>Change Group</paper-button>
             <paper-button on-tap='_toggleAdminMode' style="color:black">Admin Mode</paper-button>
@@ -146,14 +150,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-header reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>Comments App</div>
+            <div main-title>[[pageTitle]]</div>
           </app-toolbar>
         </app-header>
 
         <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
-          <!--<my-view1 name="view1" ></my-view1>-->
-          <my-view2 name="view2"></my-view2>
-          <my-view3 name="view3"></my-view3>
+          <my-dailyReview name="dailyReview" group="{{group}}" admin-mode="{{adminMode}}"></my-dailyReview>
           <my-datasession name="datasession" group="{{group}}" admin-mode="{{adminMode}}"></my-datasession>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
@@ -162,11 +164,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <paper-dialog id="groupDialog" modal>
       <h1>Select Group</h1>
-        <paper-listbox class="dropdown-content" selected="{{group}}" attr-for-selected="value">
-          <paper-item value="green">Green</paper-item>
-          <paper-item value="red">Red</paper-item>
-          <paper-item value="blue">Blue</paper-item>
-        </paper-listbox>
+      <paper-listbox class="dropdown-content" selected="{{group}}" attr-for-selected="value">
+        <paper-item value="director">Director</paper-item>
+        <paper-item value="regional">Regional Team</paper-item>
+        <paper-item value="imep">IMEP</paper-item>
+        <paper-item value="rms">RMS</paper-item>
+        <paper-item value="crossCutting">Cross Cutting</paper-item>
+        <paper-item value="AC">AC</paper-item>
+        <paper-item value="other">Other</paper-item>
+      </paper-listbox>
     </paper-dialog>
 
     <firebase-auth id="firebaseAuth1" signed-in="{{signedIn}}" user="{{user}}" app-name="firebaseApp1"></firebase-auth>
@@ -205,6 +211,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         session: {
           type: String,
           observer: 'sessionSelect'
+        },
+        pageTitle:{
+          type:String,
+          notify:true
         }
       },
 
@@ -277,6 +287,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _pageChanged: function (page) {
         console.log('pageChanged', page)
+        var titles={
+          datasession:'Data Session',
+          dailyReview:'Daily Review'
+        }
+        this.set('pageTitle',titles[page])
         // Load page import on demand. Show 404 page if fails
         var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);

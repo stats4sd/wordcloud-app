@@ -15,8 +15,8 @@
        :host {
         /*hide when not opened*/
         display: none;
-        margin:0;
-        padding:0;
+        margin: 0;
+        padding: 0;
         /*position: fixed;
         overflow: hidden;
         top: 46px;
@@ -33,6 +33,7 @@
       }
       /* Custom css for tag - TO replace with <tag> custom element! */
 
+
       .tag {
         padding: 3px 5px;
         margin: 4px 5px;
@@ -42,10 +43,12 @@
         display: inline-block;
       }
 
+
       .cardHolder {
         margin: 0;
         overflow-y: auto;
       }
+
 
       .selectedTag {
         background-color: #9FA8DA;
@@ -53,10 +56,12 @@
         border: 1px indigo solid;
       }
 
+
       .card.half {
         width: 30%;
         display: inline-block;
       }
+
 
       .submit {
         background-color: rgb(33, 110, 14);
@@ -64,14 +69,17 @@
         clear: both;
       }
 
+
       .align-right {
         margin-left: auto;
         color: black;
       }
 
+
       h5 {
         margin-bottom: 0;
       }
+
 
       paper-card {
         --paper-card: {
@@ -81,6 +89,7 @@
           margin: 0;
         }
       }
+
 
       paper-icon-item {
         display: flex
@@ -105,18 +114,18 @@
             <iron-icon class="align-right" icon="close" item-icon on-tap="close"></iron-icon>
           </div>
         </paper-icon-item>
+
+        <!--comment creator-->
         <div id="commentEdit" hidden$="[[commentSaved]]">
           <h5>1. Add your comment:</h5>
           <paper-textarea label="" no-label-float value="{{comment.commentText}}"></paper-textarea>
-          <!-- comment tags -->
           <h5>2. Tag your comment</h5>
-          <!--<tags-element id="tagsSelector" question="{{question}}" vals=""></tags-element>-->
           <iron-selector id='tagsSelector' multi='true' selected-values="{{comment.commentTags}}" selected-class="selectedTag" attr-for-selected="name">
             <template id='tagRepeat' is='dom-repeat' items='[[_toArray(allTags)]]' as='tag'>
               <button class='tag' name="[[tag.$key]]">[[tag.tagText]]</button>
             </template>
           </iron-selector>
-          <paper-input id="newTagInput" label="Add more tags" maxlength=25 always-float-label value="{{tagText}}"></paper-input>
+          <paper-input id="newTagInput" label="Add more tags" maxlength=25 always-float-label value="{{tagText}}" on-keydown="checkForEnter"></paper-input>
           <paper-button style="color:indigo" on-tap="addTag">Add Tag</paper-button>
           <br/><br/>
           <!-- comment submit -->
@@ -125,6 +134,7 @@
           </paper-button>
           <paper-toast id="submittedText" text="Comment submitted"></paper-toast>
         </div>
+        <!--saved comment display-->
         <div class="savedComment" hidden$="[[!commentSaved]]">
           <p class='comment'><strong>Comment:</strong>[[comment.commentText]]</p>
           <span><strong>Tags: </strong></span>
@@ -175,11 +185,15 @@
           type: String,
           notify: true
         },
+        allowMultiple: {
+          type: Boolean,
+          value: false
+        },
         opened: {
           type: Boolean,
           // keep html attribute and property value in sync to cause observable change
           reflectToAttribute: true,
-          notify:true,
+          notify: true,
           // readOnly: true,
           value: false
         },
@@ -246,11 +260,15 @@
         //console.log('comment changed', this.comment)
       },
       open: function () {
-        //manually get comment from parent as binding not set correctly
+        //if push id saved use same (track session), unless allowing for multiple
         if (!this.pushId) { this.pushId = generatePushID() }
+        if (this.allowMultiple) { 
+          this.pushId = generatePushID();
+        }
         this.commentPath = "questions/" + this.question.$key + "/comments/" + this.pushId
-        //if load any existing comments and unhide editor if none
-        if (this.savedComments[this.question.$key]) {
+        var commentId = this.pushId
+        //load any existing comments and unhide editor if single comment mode
+        if (this.savedComments[this.question.$key] && !this.allowMultiple) {
           this.comment = this.savedComments[this.question.$key]
           this.commentSaved = true
         }
@@ -294,7 +312,6 @@
       checkForEnter: function (e) {
         if (e.keyCode === 13) {
           this.addTag();
-
         }
       },
       addTag: function () {
