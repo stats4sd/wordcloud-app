@@ -122,6 +122,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: var(--group-colour-900);
         color: var(--group-colour-50);
       }
+      .adminButtonTrue{
+        color:blue
+      }
+      .adminButtonFalse{
+        color:green
+      }
+      paper-button{
+        --paper-button{
+          
+        }
+      }
     </style>
 
     <start-element group="{{group}}" group-colour="{{groupColour}}" session="{{session}}" toggle-group-dialog="{{toggleGroupDialog}}"></start-element>
@@ -138,8 +149,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <hr/>
           <a name="dailyReview" href="/dailyReview">Daily Review</a>
           <div class=footer>
-            <paper-button class="groupButton" on-tap='_toggleGroupDialog'>Change Group</paper-button>
-            <paper-button on-tap='_toggleAdminMode' style="color:black">Admin Mode</paper-button>
+            <paper-button raised hidden$="{{adminMode}}" class="groupButton" on-tap='_toggleGroupDialog'>Change Group</paper-button>
+            <paper-button raised hidden$="{{adminMode}}" class="enableAdmin" on-tap='_toggleAdminMode'>Enable Admin</paper-button>
+            <paper-button raised hidden$="{{!adminMode}}" class="disableAdmin" on-tap='_toggleAdminMode'>Disable Admin</paper-button>
           </div>
         </iron-selector>
       </app-drawer>
@@ -215,7 +227,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         pageTitle:{
           type:String,
           notify:true
-        }
+        },
       },
 
       observers: [
