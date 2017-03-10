@@ -198,6 +198,7 @@
           value: false
         },
         // define question object here so can be used from template markup
+        //this line does nothing.
         question: {
           type: Object,
           // notify allows to-way binding to element from parent or other elements
@@ -225,7 +226,7 @@
       },
       observers: [
         'commentChanged(comment.*)',
-        'commentTagsChanged(comment.commentTags.*)',
+        // 'commentTagsChanged(comment.commentTags)',
         'allTagsChanged(allTags.*)',
         'newGroup(group)',
       ],
@@ -240,7 +241,7 @@
         //this.allTags=array
       },
       commentTagsChanged: function (commentTags) {
-        //console.log('comment tags changed',commentTags)
+        // console.log('comment tags changed',commentTags)
       },
       newGroup: function (group) {
         this.group = group
@@ -262,7 +263,7 @@
       open: function () {
         //if push id saved use same (track session), unless allowing for multiple
         if (!this.pushId) { this.pushId = generatePushID() }
-        if (this.allowMultiple) { 
+        if (this.allowMultiple) {
           this.pushId = generatePushID();
         }
         this.commentPath = "questions/" + this.question.$key + "/comments/" + this.pushId
@@ -321,7 +322,20 @@
           this.tagKey = this.tagText.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
           this.newTag.tagText = this.tagText
           this.$.newTagDoc.save(this.allTagsPath, this.tagKey).then(function () {
-            console.log('tag saved')
+            // console.log('tag saved')
+            //set new tag as selected:
+
+            //if comment.commentTags is not yet created:
+            if(!this.comment.commentTags) {
+              //create it:
+              // console.log("comment",this.comment)
+              this.set("comment.commentTags",[]);
+
+            }
+              //add to it.
+              this.push("comment.commentTags",this.tagKey);
+              // console.log("tagKey",this.tagKey)
+              // console.log("comment",this.comment)
             this.tagText = ""
           }.bind(this))
         }
