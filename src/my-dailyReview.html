@@ -76,19 +76,22 @@
     <p>Each day you will be asked to add reflections for the end of day review. Questions are listed below.</p>
     <div hidden$="{{openComment}}">
       <template id='questionsRepeat' is='dom-repeat' items='[[questions]]' as='question' filter="isReviewQuestion">
-        <paper-card on-tap="goToQuestion" id="[[question.$key]]">
-          <paper-icon-item>
+        <paper-card id="[[question.$key]]" style="padding:0;">
+          <!-- Added a _class computed function so I can set the width of the items based on whether admin mode is enabled.
+            This lets me put the 'delete' button next to the 'goToQuestion' button instead of on-top.  Solves issue of both on-tap functions running at once, but in a clunky way... -->
+          <paper-icon-item style$="{{_class(adminMode,80)}}" on-tap="goToQuestion">
             <iron-icon icon="communication:live-help" item-icon></iron-icon>
             <div> [[question.questionText]]</div>
-            <div class="align-right" hidden$="{{!adminMode}}">
-              <iron-icon class="align-right" icon="delete" item-icon on-tap="_delete"></iron-icon>
-            </div>
             <!--<div class="align-right" hidden$="{{adminMode}}">
               <iron-icon class="align-right" icon="editor:insert-chart"></iron-icon>
               [[getLength(question)]]
             </div>-->
           </paper-icon-item>
+          <div class="align-right" hidden$="{{!adminMode}}" style$="{{_class(adminMode,15)}}">
+            <iron-icon class="align-right" icon="delete" item-icon on-tap="_delete"></iron-icon>
+          </div>
         </paper-card>
+
       </template>
     </div>
     <!--add new question-->
@@ -139,6 +142,15 @@
       observers: [
         'groupChange(group)',
       ],
+
+      _class: function(adminMode,size) {
+        if(adminMode) {
+          return "width:" + size + "%; padding:10px; display: inline-block"
+        }
+        return "padding:10px; display: inline-block";
+      },
+
+
       isReviewQuestion:function(question){
         return question.$key!='_dataSession'
       },
