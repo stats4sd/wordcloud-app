@@ -29,6 +29,7 @@
         background-color: var(--group-colour-900);
         color: var(--group-colour-50);
         height: var(--calc-height);
+
       }
 
       p {
@@ -82,10 +83,8 @@
   </firebase-document>
 
     <!-- Main comment input -->
-    
-      <p>During the session, feel free to add comments using the form.
-        <br>
-        Results will appear below.
+
+      <p>During the session, feel free to add comments on this page.
       </p>
       <div hidden$="{{openComment}}">
       <template id='questionsRepeat' is='dom-repeat' items='[[questions]]' as='question' filter='isNotReviewQuestion'>
@@ -103,7 +102,6 @@
     </div>
 
     <comment-element id="commentEditor" allow-multiple=true question="{{selectedQuestion}}" group="{{group}}" opened="{{openComment}}"></comment-element>
-    
     <!--admin section-->
     <div id="admin" hidden$="{{!adminMode}}" class="admin">
       <h4>Remove Tags</h4>
@@ -120,7 +118,7 @@
     </div>
 
     <!--results-->
-    <iframe src="http://shiny.stats4sd.org/word-demo/"></iframe>
+    <iframe src="http://shiny.stats4sd.org/word-demo/" hidden$="{{viewOutput}}"></iframe>
 
   </template>
 
@@ -135,7 +133,7 @@
         },
         questionLengths:{
           type:Array,
-          
+
         },
         newQuestion: {
           type: String
@@ -157,10 +155,14 @@
           type:Boolean,
           value:false,
           notify:true
+        },
+        viewOutput:{
+          type:Boolean,
+          value:false
         }
       },
       observers: [
-        'groupChange(group)',
+        'groupChange(group)'
 
       ],
 
@@ -173,13 +175,13 @@
 
       },
        _toArray:function(json) {
-          var array = Object.keys(json).map(function (k) { 
-            var temp = json[k] 
-            temp.$key = k 
-            return temp 
-          }) 
-          return array 
-          //this.allTags=array 
+          var array = Object.keys(json).map(function (k) {
+            var temp = json[k]
+            temp.$key = k
+            return temp
+          })
+          return array
+          //this.allTags=array
         },
 
       isNotReviewQuestion:function(question){
@@ -191,7 +193,7 @@
           console.log('keys',Object.keys(question.comments).length)
           return Object.keys(question.comments).length
         }
-        else{return 0} 
+        else{return 0}
       },
       goToQuestion: function (e) {
         //link to model from template that generated this question
@@ -218,7 +220,7 @@
       },
        _deleteTag: function (e) {
         this.selectedTag=e.model.tag;
-        this.$.removeTag.destroy(); 
+        this.$.removeTag.destroy();
         return Promise.resolve();
         },
       checkForEnter: function (e) {
