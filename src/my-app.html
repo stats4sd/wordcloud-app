@@ -130,8 +130,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       paper-button{
         --paper-button{
-          
+
         }
+      }
+
+      .adminButton {
+        border: 1px var(--group-color-500) solid;
+        margin-top: 10px;
       }
     </style>
 
@@ -150,8 +155,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <a name="dailyReview" href="/dailyReview">Daily Review</a>
           <div class=footer>
             <paper-button raised hidden$="{{adminMode}}" class="groupButton" on-tap='_toggleGroupDialog'>Change Group</paper-button>
-            <paper-button raised hidden$="{{adminMode}}" class="enableAdmin" on-tap='_toggleAdminMode'>Enable Admin</paper-button>
-            <paper-button raised hidden$="{{!adminMode}}" class="disableAdmin" on-tap='_toggleAdminMode'>Disable Admin</paper-button>
+            <paper-button raised hidden$="{{adminMode}}" class="enableAdmin adminButton" on-tap='_toggleAdminMode'>Enable Admin</paper-button>
+            <paper-button raised hidden$="{{!adminMode}}" class="disableAdmin adminButton" on-tap='_toggleAdminMode'>Disable Admin</paper-button>
           </div>
         </iron-selector>
       </app-drawer>
