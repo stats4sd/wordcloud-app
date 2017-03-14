@@ -30,8 +30,8 @@
         color: var(--group-colour-50);
         height: var(--calc-height);
       }
-
-       p{
+      
+      p {
         padding: 0 10px 0 10px;
         margin-top: 0px;
       }
@@ -45,37 +45,39 @@
           margin-top: 2px;
         }
       }
-
+      
       paper-icon-item {
         display: flex
       }
-
+      
       .align-right {
         margin-left: auto
       }
-
+      
       .admin {
         background-color: var(--paper-red-50);
         color: var(--paper-red-900)
       }
-
+      
       .adminButton {
         background-color: var(--paper-red-900);
         color: var(--paper-red-50);
         bottom: 5px
       }
     </style>
-    <firebase-query id="questionsQuery" path="/questions" data="{{questions}}" app-name="firebaseApp1"></firebase-query>
+    <firebase-document id="questionsQuery" path="/questions" data="{{questions}}" app-name="firebaseApp1"></firebase-document>
     <firebase-document id="newQuestion" data="{{newQuestion}}" app-name="firebaseApp1">
     </firebase-document>
-    <firebase-document id="removeQuestion" path="/questions/{{selectedQuestion.$key}}" app-name="firebaseApp1">
+    <firebase-document id="removeQuestion" path="/questions/{{selectedQuestion.$key}}" app-name="firebaseApp1" data="{{removeQuestion}}">
+    </firebase-document>
+    <firebase-document id="firebaseEdit" path="{{firebaseEditPath}}" app-name="firebaseApp1" data="{{firebaseEdit}}">
     </firebase-document>
 
     <!-- Main comment input -->
 
     <p>Each day you will be asked to add reflections for the end of day review. Questions are listed below.</p>
     <div hidden$="{{openComment}}">
-      <template id='questionsRepeat' is='dom-repeat' items='[[questions]]' as='question' filter="isReviewQuestion">
+      <template id='questionsRepeat' is='dom-repeat' items='[[_toArray(questions)]]' as='question' filter="isReviewQuestion">
         <paper-card id="[[question.$key]]" style="padding:0;">
           <!-- Added a _class computed function so I can set the width of the items based on whether admin mode is enabled.
             This lets me put the 'delete' button next to the 'goToQuestion' button instead of on-top.  Solves issue of both on-tap functions running at once, but in a clunky way... -->
@@ -87,12 +89,31 @@
               [[getLength(question)]]
             </div>-->
           </paper-icon-item>
-          <div class="align-right" hidden$="{{!adminMode}}" style$="{{_class(adminMode,15)}}">
-            <iron-icon class="align-right" icon="delete" item-icon on-tap="_delete"></iron-icon>
+           <!--<div class="align-right" hidden$="{{!adminMode}}" style$="{{_class(adminMode,15)}}">-->
+          <div class="align-right" hidden$="{{!adminMode}}">
+            <iron-icon hidden$="{{!adminMode}}" class="align-right" icon="visibility" item-icon on-tap="_hide"></iron-icon>
           </div>
         </paper-card>
 
       </template>
+    </div>
+    <!--list hidden questions-->
+    <div hidden$="{{openComment}}">
+      <div hidden$="{{!adminMode}}">
+        <h3>Hidden Questions</h3>
+        <template id='questionsRepeat' is='dom-repeat' items='[[_toArray(questions)]]' as='question' filter="isHiddenQuestion">
+          <paper-card id="[[question.$key]]" style="padding:0;">
+            <paper-icon-item style$="{{_class(adminMode,80)}}" on-tap="goToQuestion">
+              <iron-icon icon="communication:live-help" item-icon></iron-icon>
+              <div> [[question.questionText]]</div>
+            </paper-icon-item>
+            <div class="align-right" hidden$="{{!adminMode}}">
+            <!--<div class="align-right" hidden$="{{!adminMode}}" style$="{{_class(adminMode,15)}}">-->
+              <iron-icon hidden$="{{!adminMode}}" class="align-right" icon="visibility-off" item-icon on-tap="_hide"></iron-icon>
+            </div>
+          </paper-card>
+        </template>
+      </div>
     </div>
     <!--add new question-->
     <div class='admin' hidden$="{{!adminMode}}">
@@ -137,22 +158,42 @@
           type: Boolean,
           value: false,
           notify: true
+        },
+        isHidden: {
+          type: Boolean,
+          notify: true
+        },
+        firebaseEditPath: {
+          type: String,
+          notify: true
         }
       },
       observers: [
         'groupChange(group)',
       ],
 
-      _class: function(adminMode,size) {
-        if(adminMode) {
+      _class: function (adminMode, size) {
+        if (adminMode) {
           return "width:" + size + "%; padding:10px; display: inline-block"
         }
         return "padding:10px; display: inline-block";
       },
+      _toArray: function (json) {
+        var array = Object.keys(json).map(function (k) {
+          var temp = json[k]
+          temp.$key = k
+          return temp
+        })
+        return array
+        //this.allTags=array
+      },
 
 
-      isReviewQuestion:function(question){
-        return question.$key!='_dataSession'
+      isReviewQuestion: function (question) {
+        return (question.$key != '_dataSession' && question.hidden != true)
+      },
+      isHiddenQuestion: function (question) {
+        return question.hidden
       },
 
       // Dummy data initialise.
@@ -162,10 +203,6 @@
         this.customStyle['--calc-height'] = window.innerHeight - 64 + 'px'
         this.updateStyles()
 
-      },
-      _reviewQuestionFilter:function(question){
-        console.log('filter',question)
-        return true
       },
       getLength: function (question) {
         console.log('computing length', question)
@@ -193,12 +230,22 @@
         //document.querySelector('iron-list').fire('iron-resize');
         console.log('questions changed', this.questions)
       },
-      _delete: function (e) {
-        this.selectedQuestion = e.model.question
+      _hide: function (e) {
+        var question = e.model.question
+        var key = question.$key
+        var path = '/questions'
+        this.firebaseEditPath = '/questions/' + key
+        if (question.hidden) { question.hidden = !question.hidden }
+        else { question.hidden = true }
+        delete question.$key
+        this.firebaseEdit = question
+        this.$.firebaseEdit.save(path, key).then(function () {
+        })
+
         //if (!this.$.removeQuestion.isNew) {
-        this.$.removeQuestion.destroy();
+        // this.$.removeQuestion.destroy();
         //}
-        return Promise.resolve();
+        // return Promise.resolve();
 
       },
       checkForEnter: function (e) {
